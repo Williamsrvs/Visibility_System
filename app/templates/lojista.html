@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏪 Central de Comando Lojista</title>
+    <style>
+        /* RESET E BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar_menu {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        /* Header da Sidebar */
+        .sidebar_header {
+            padding: 30px 25px;
+            background: rgba(0, 194, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar_header h2 {
+            color: #00c2ff;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 194, 255, 0.3);
+        }
+
+        /* Menu List */
+        .menu_list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu_list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .menu_list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu_list::-webkit-scrollbar-thumb {
+            background: rgba(0, 194, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .menu_list li {
+            margin: 8px 15px;
+        }
+
+        .menu_list li a {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            color: #d8e0f0;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu_list li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #00c2ff;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .menu_list li a:hover {
+            background: rgba(0, 194, 255, 0.15);
+            color: #00c2ff;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 194, 255, 0.2);
+        }
+
+        .menu_list li a:hover::before {
+            transform: scaleY(1);
+        }
+
+        .menu_list li a:active {
+            transform: translateX(3px) scale(0.98);
+        }
+
+        /* Botão Sair */
+        .btn_sair {
+            margin: 20px 25px 15px;
+            background: linear-gradient(135deg, #ff5252 0%, #ff1744 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn_sair:hover {
+            background: linear-gradient(135deg, #ff1744 0%, #d50000 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 82, 82, 0.4);
+        }
+
+        .btn_sair:active {
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .sidebar_footer {
+            padding: 20px 25px;
+            font-size: 0.75rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.6;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .content {
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header do Conteúdo */
+        .content_header {
+            background: #fff;
+            padding: 30px 50px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-bottom: 3px solid #00c2ff;
+        }
+
+        .content_header h1 {
+            font-size: 2.2rem;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content_header p {
+            font-size: 1.05rem;
+            color: #666;
+            line-height: 1.6;
+            max-width: 800px;
+        }
+
+        /* Cards de Ação Rápida */
+        .quick_actions {
+            padding: 40px 50px;
+            flex: 1;
+        }
+
+        .quick_actions h2 {
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .cards_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .action_card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .action_card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 194, 255, 0.2);
+            border-color: #00c2ff;
+        }
+
+        .card_icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .card_title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .card_description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .sidebar_menu {
+                width: 240px;
+            }
+
+            .content {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+
+            .content_header {
+                padding: 25px 35px;
+            }
+
+            .quick_actions {
+                padding: 30px 35px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar_menu {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar_menu.active {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .content_header {
+                padding: 20px 25px;
+            }
+
+            .content_header h1 {
+                font-size: 1.8rem;
+            }
+
+            .quick_actions {
+                padding: 25px;
+            }
+
+            .cards_grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Menu toggle button */
+            .menu_toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: #00c2ff;
+                color: #fff;
+                border: none;
+                padding: 12px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 15px rgba(0, 194, 255, 0.3);
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu_toggle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão Mobile Menu -->
+    <button class="menu_toggle" onclick="toggleMenu()">☰</button>
+
+    <!-- Sidebar lateral -->
+    <nav class="sidebar_menu" id="sidebar">
+        <div class="sidebar_header">
+            <h2>Menu</h2>
+        </div>
+
+        <ul class="menu_list">
+            <li><a href="#meunegocio">🏪 Meu Negócio</a></li>
+            <li><a href="cliente">📃 Cadastro Cliente</a></li>
+            <li><a href="/ger_clientes">👤 Clientes</a></li>
+            <li><a href="/produto">➕ Novo Produto</a></li>
+            <li><a href="/pedidos">🍔 Fazer Pedidos</a></li>
+            <li><a href="/ger_pedidos">📦 Pedidos</a></li>
+            <li><a href="/cadastrar_usuario">🔑 Cadastrar Usuários</a></li>
+            <li><a href="/produto_excel">📃 Relatório Produtos</a></li>
+            <li><a href="/cliente_excel">📃 Relatório Clientes</a></li>
+            <li><a href="/ger_pedidos">📃 Relatório Pedidos</a></li>
+            <li><a href="/pedidos_excel_clientes">📃 Relatório Pedidos Clientes</a></li>
+            
+        </ul>
+
+        <button class="btn_sair" onclick="location.href='/'">🚪 Sair</button>  
+
+        <footer class="sidebar_footer">
+            <p>&copy; 2025 Date Analytics<br>Todos os direitos reservados.</p>
+        </footer>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="content">
+        <div class="content_header">
+            <h1>🏪 Central de Comando Lojista</h1>
+            <p>Bem-vindo à Central de Comando do Lojista! Aqui você pode gerenciar seus produtos, visualizar pedidos e acompanhar o desempenho da sua loja em tempo real.</p>
+        </div>
+
+        <div class="quick_actions">
+            <h2>Acesso Rápido</h2>
+            <div class="cards_grid">
+                <div class="action_card" onclick="location.href='/ger_clientes'">
+                    <span class="card_icon">👤</span>
+                    <h3 class="card_title">Clientes</h3>
+                    <p class="card_description">Gerencie seus clientes</p>
+                </div>
+
+                    <div class="action_card" onclick="location.href='/produto'">
+                    <span class="card_icon">➕</span>
+                    <h3 class="card_title">Adicionar Produto</h3>
+                    <p class="card_description">Cadastre novos produtos no sistema</p>
+                </div>
+
+                <div class="action_card" onclick="location.href='/ger_pedidos'">
+                    <span class="card_icon">📦</span>
+                    <h3 class="card_title">Gerenciar Pedidos</h3>
+                    <p class="card_description">Visualize e processe pedidos</p>
+                </div>
+
+                    <div class="action_card" onclick="location.href='/cadastrar_usuario'">
+                    <span class="card_icon">🔑</span>
+                    <h3 class="card_title">Usuários</h3>
+                    <p class="card_description">Gerencie acessos ao sistema</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Fecha o menu ao clicar fora (mobile)
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu_toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

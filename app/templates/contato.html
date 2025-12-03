@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📣 Fale Conosco - Date Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: url('https://i.postimg.cc/s2h1bwzg/img-faleconosco-Copia.png') no-repeat center center fixed;
+        background-size: cover; /* Faz a imagem preencher a tela */
+        background-position: center; /* Centraliza */
+        background-repeat: no-repeat; /* Evita repetição */
+        background-attachment: scroll; /* Fixa a imagem durante rolagem (opcional) */
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+}
+
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container-contato {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .container-contato h2 {
+            color: #0056b3;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 40px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0056b3;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Floating Buttons */
+        .floating-buttons {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 9999;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.6);
+            transform: scale(1.05);
+        }
+
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+        }
+
+        .btn-instagram:hover {
+            box-shadow: 0 0 20px rgba(188, 24, 136, 0.6);
+            transform: scale(1.05);
+        }
+
+        .btn-survey {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            font-weight: 700;
+        }
+
+        .btn-survey:hover {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideDown 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: #0056b3;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            display: flex;
+            gap: 10px;
+            font-size: 40px;
+            margin: 10px 0 20px 0;
+            justify-content: center;
+        }
+
+        .star {
+            cursor: pointer;
+            filter: grayscale(100%);
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .star:hover,
+        .star.active {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container-contato {
+                padding: 30px 20px;
+            }
+
+            .header-banner {
+                width: 90%;
+            }
+
+            .floating-buttons {
+                bottom: 100px;
+                right: 10px;
+            }
+
+            .btn-social {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <main class="main-content">
+        <div class="container-contato">
+            <h2>Fale Conosco</h2>
+            <p class="subtitle">Preencha o formulário abaixo e entraremos em contato em breve.</p>
+
+            <div class="alert-success" style="display: none;" id="successAlert">
+                Mensagem enviada com sucesso! Entraremos em contato em breve.
+            </div>
+
+            <form id="contactForm" method="POST" action="/contato">
+                <div class="form-group">
+                    <label for="nome">Nome completo *</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem">Mensagem *</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Digite sua mensagem aqui..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">Enviar Mensagem</button>
+                <button type="button" class="btn-secondary" onclick="window.location.href='/'">← Voltar</button>
+            </form>
+        </div>
+    </main>
+
+    <div class="floating-buttons">
+        <a href="/pesquisa" class="btn-social btn-survey">
+            <span>⭐</span>
+            <span>Pesquisa</span>
+        </a>
+        <a href="https://wa.me/5582988639394" class="btn-social btn-whatsapp" target="_blank" rel="noopener">
+            <span>📲</span>
+            <span>WhatsApp</span>
+        </a>
+        <a href="https://www.instagram.com/dateanalytics" class="btn-social btn-instagram" target="_blank" rel="noopener">
+            <span>📸</span>
+            <span>Instagram</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        © 2025 Date Analytics. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        // Simular feedback de sucesso (adapte conforme seu backend)
+        const form = document.getElementById('contactForm');
+        const successAlert = document.getElementById('successAlert');
+
+        form.addEventListener('submit', function(e) {
+            // Descomente a linha abaixo quando integrar com backend
+            // e.preventDefault();
+            
+            // Exemplo de exibição de sucesso
+            // successAlert.style.display = 'block';
+            // form.reset();
+            // setTimeout(() => successAlert.style.display = 'none', 5000);
+        });
+
+        // Modal de Pesquisa
+        function openSurveyModal(e) {
+            e.preventDefault();
+            document.getElementById('surveyModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSurveyModal() {
+            document.getElementById('surveyModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('surveyModal');
+            if (event.target === modal) {
+                closeSurveyModal();
+            }
+        }
+
+        // Sistema de Avaliação por Estrelas
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('rating');
+        let currentRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                currentRating = this.getAttribute('data-rating');
+                ratingInput.value = currentRating;
+                updateStars(currentRating);
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = this.getAttribute('data-rating');
+                updateStars(hoverRating);
+            });
+        });
+
+        document.querySelector('.rating-stars').addEventListener('mouseleave', function() {
+            updateStars(currentRating);
+        });
+
+        function updateStars(rating) {
+            stars.forEach(star => {
+                const starRating = star.getAttribute('data-rating');
+                if (starRating <= rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Formulário de Pesquisa
+        const surveyForm = document.getElementById('surveyForm');
+        surveyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!ratingInput.value) {
+                alert('Por favor, selecione uma avaliação com estrelas!');
+                return;
+            }
+
+            // Aqui você pode enviar os dados para seu backend
+            const formData = {
+                rating: ratingInput.value,
+                name: document.getElementById('surveyName').value,
+                email: document.getElementById('surveyEmail').value,
+                comment: document.getElementById('surveyComment').value
+            };
+
+            console.log('Dados da pesquisa:', formData);
+            
+            // Simulação de envio
+            alert('Obrigado pela sua avaliação! ⭐');
+            surveyForm.reset();
+            currentRating = 0;
+            updateStars(0);
+            closeSurveyModal();
+        });
+    </script>
+</body>
+</html>

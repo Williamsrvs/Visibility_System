@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>🗣️ Pesquisa de Satisfação</title>
+<style>
+    body {
+    background: url('https://i.postimg.cc/zBwvGvVq/pesquisa.png');
+    background-size: cover; /* Faz a imagem preencher a tela */
+    background-position: center; /* Centraliza */
+    background-repeat: no-repeat; /* Evita repetição */
+    background-attachment: scroll; /* Fixa a imagem durante rolagem (opcional) */
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    }
+
+    
+    .container {
+    background-color: #fff;
+    max-width: 800px;
+    width: 100%;
+    margin: 30px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    h1 {
+    text-align: center;
+    color: #007BFF;
+    }
+    label {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    }
+    select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    }
+    button {
+    background-color: #007BFF;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    }
+    button:hover {
+    background-color: #0056b3;
+    }
+
+    .footer {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    }
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+        <h1>Pesquisa de Satisfação</h1>
+
+    {% if mensagem %}
+    <div class="mensagem sucesso">✅ {{ mensagem }}</div>
+    {% endif %}
+    
+    {% if erro %}
+    <div class="mensagem erro">❌ Erro: {{ erro }}</div>
+    {% endif %}
+
+    
+    <form method="post" action="/pesquisa">
+    <label for="atendimento">1. Atendimento recebido</label>
+    <select id="atendimento" name="atendimento">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Péssimo">1- Péssimo</option>
+        <option value="2- Ruim">2- Ruim</option>
+        <option value="3- Regular">3- Regular</option>
+        <option value="4- Bom">4- Bom</option>
+        <option value="5- Excelente">5- Excelente</option>
+    </select>
+
+    <label for="qualidade">2. Qualidade do produto ou serviço</label>
+    <select id="qualidade" name="qualidade">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Muito abaixo">1- Muito abaixo</option>
+        <option value="2- Abaixo">2- Abaixo</option>
+        <option value="3- Dentro do esperado">3- Dentro do esperado</option>
+        <option value="4- Acima">4- Acima</option>
+        <option value="5- Muito acima">5- Muito acima</option>
+    </select>
+
+    <label for="satisfacao">3. Satisfação geral</label>
+    <select id="satisfacao" name="satisfacao">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Nada satisfeito">1- Nada satisfeito</option>
+        <option value="2- Pouco satisfeito">2- Pouco satisfeito</option>
+        <option value="3- Indiferente">3- Indiferente</option>
+        <option value="4- Satisfeito">4- Satisfeito</option>
+        <option value="5- Muito satisfeito">5- Muito satisfeito</option>
+    </select>
+
+    <label for="rapidez">4. Rapidez no atendimento ou entrega</label>
+    <select id="rapidez" name="rapidez">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Muito demorado">1- Muito demorado</option>
+        <option value="2- Demorado">2- Demorado</option>
+        <option value="3- Razoável">3- Razoável</option>
+        <option value="4- Rápido">4- Rápido</option>
+        <option value="5- Muito rápido">5- Muito rápido</option>
+    </select>
+
+    <label for="localizacao">5. Localização do negócio</label>
+    <select id="localizacao" name="localizacao">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Nada conveniente">1- Nada conveniente</option>
+        <option value="2- Pouco conveniente">2- Pouco conveniente</option>
+        <option value="3- Razoável">3- Razoável</option>
+        <option value="4- Conveniente">4- Conveniente</option>
+        <option value="5- Muito conveniente">5- Muito conveniente</option>
+    </select>
+
+    <label for="experiencia">6. Experiência na plataforma</label>
+    <select id="experiencia" name="experiencia">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Péssimo">1- Péssimo</option>
+        <option value="2- Ruim">2- Ruim</option>
+        <option value="3- Regular">3- Regular</option>
+        <option value="4- Bom">4- Bom</option>
+        <option value="5- Excelente">5- Excelente</option>
+    </select>
+
+    <label for="facilidade">7. Facilidade de uso da plataforma</label>
+    <select id="facilidade" name="facilidade">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Muito difícil">1- Muito difícil</option>
+        <option value="2- Difícil">2- Difícil</option>
+        <option value="3- Razoável">3- Razoável</option>
+        <option value="4- Fácil">4- Fácil</option>
+        <option value="5- Muito facil">5- Muito fácil</option>
+    </select>
+
+    <label for="variedade">8. Variedade e disponibilidade</label>
+    <select id="variedade" name="variedade">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Muito insatisfatória">1- Muito insatisfatória</option>
+        <option value="2- Insatisfatória">2- Insatisfatória</option>
+        <option value="3- Razoável">3- Razoável</option>
+        <option value="4- Satisfatória">4- Satisfatória</option>
+        <option value="5- Excelente">5- Excelente</option>
+    </select>
+
+    <label for="ambiente">9. Ambiente e estrutura do estabelecimento</label>
+    <select id="ambiente" name="ambiente">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Péssimo">1- Péssimo</option>
+        <option value="2- Ruim">2- Ruim</option>
+        <option value="3- Regular">3- Regular</option>
+        <option value="4- Bom">4- Bom</option>
+        <option value="5- Excelente">5- Excelente</option>
+    </select>
+
+    <label for="recomendacao">10. Você recomendaria nosso serviço?</label>
+    <select id="recomendacao" name="recomendacao">
+        <option value="">---Escolha Uma Opção---</option>
+        <option value="1- Com certeza não">1- Com certeza não</option>
+        <option value="2- Provavelmente não">2- Provavelmente não</option>
+        <option value="3- Talvez">3- Talvez</option>
+        <option value="4- Provavelmente sim">4- Provavelmente sim</option>
+        <option value="5- Com certeza sim">5- Com certeza sim</option>
+    </select>
+
+    <label for="comentarios">Comentários adicionais (opcional)</label>
+    <textarea id="comentarios" name="comentarios" rows="4" placeholder="Compartilhe sugestões ou observações..."></textarea>
+
+    <button type="submit">Enviar avaliação</button>
+    </form>
+</div>
+<footer class="footer">
+        © 2025 Date Analytics. Todos os direitos reservados.
+    </footer>
+</body>
+</html>
