@@ -1,7 +1,6 @@
 from datetime import datetime, date
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from config import Config
-from flask_mysqldb import MySQL
 import logging
 import os
 import mysql.connector as mysql_conn
@@ -10,7 +9,6 @@ import openpyxl
 from io import BytesIO
 import xlsxwriter
 from flask import send_file
-from MySQLdb.cursors import DictCursor
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -40,8 +38,21 @@ def b64encode_filter(data):
     import base64
     return base64.b64encode(data).decode('utf-8')
 
-# Inicializa MySQL do Flask-MySQLdb
-mysql = MySQL(app)  # ← VOLTOU PARA O NOME ORIGINAL!
+# Classe para gerenciar conexão com MySQL
+class MySQLConnection:
+    @staticmethod
+    def get_connection():
+        return mysql_conn.connect(
+            host=db_config['host'],
+            user=db_config['user'],
+            password=db_config['password'],
+            database=db_config['database'],
+            port=db_config['port']
+        )
+
+# Variável placeholder para compatibilidade
+class mysql:
+    pass
 
 # Log ao iniciar
 logging.info("🚀 Aplicação iniciando...")
@@ -52,7 +63,8 @@ logging.info(f"🗄️  Database: {Config.MYSQL_DB}")
 def criar_tabelas():
     try:
         with app.app_context():
-            cur = mysql.connection.cursor()
+            conn = MySQLConnection.get_connection()
+            cur = conn.cursor()
             schema_path = os.path.join(os.path.dirname(__file__), 'schema.sql')
             with open(schema_path, 'r', encoding='utf-8') as f:
                 sql_commands = f.read().split(';')
@@ -60,15 +72,16 @@ def criar_tabelas():
                     cmd = command.strip()
                     if cmd and cmd.lower().startswith('create table'):
                         cur.execute(cmd)
-            mysql.connection.commit()
+            conn.commit()
             cur.close()
+            conn.close()
             logging.info('✅ Tabelas criadas/verificadas com sucesso.')
     except Exception as e:
         logging.error(f'❌ Erro ao criar/verificar tabelas: {e}')
 
 @app.route('/')
 def index():
-    cur = mysql.connection.cursor()
+    conn = mysql.get_connection(); cur = conn.cursor()
     try:
         cur.execute("SELECT * FROM tbl_prod")
         produtos = cur.fetchall()
@@ -83,7 +96,7 @@ def index():
 def cliente():
     cur = None
     try:
-        cur = mysql.connection.cursor()
+        conn = mysql.get_connection(); cur = conn.cursor()
         
         if request.method == 'GET':
             cur.execute("SELECT * FROM tbl_cliente")
@@ -118,14 +131,14 @@ VALUES (%s,%s, %s, %s, %s, %s, %s)
     dados.get('uf')
 ))
     
-            mysql.connection.commit()
+            conn.commit()
             logging.info(f"✅ Cliente cadastrado: {dados.get('nome_cliente')}")
             return redirect(url_for('cliente'))
             
     except Exception as e:
         logging.error(f"❌ Erro na rota /cliente: {e}")
-        if mysql.connection:
-            mysql.connection.rollback()
+        if conn is not None:
+            conn.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
         if cur:
@@ -152,7 +165,7 @@ def login():
 def cadastrar_usuario():
     cur=None
     try:
-        cur = mysql.connection.cursor()
+        conn = mysql.get_connection(); cur = conn.cursor()
         if request.method == 'GET':
             cur.execute("SELECT * FROM tbl_cadastrar_usuario")
             usuarios = cur.fetchall()
@@ -181,13 +194,13 @@ VALUES (%s, %s, %s)
     dados.get('senha_usuario'),
     dados.get('repetir_senha')
 ))
-            mysql.connection.commit()
+            conn.commit()
             logging.info(f"✅ Usuário cadastrado: {dados.get('nome_usuario')}")
             return redirect(url_for('cadastrar_usuario'))
     except Exception as e:
         logging.error(f"❌ Erro na rota /cadastrar_usuario: {e}")
-        if mysql.connection:
-            mysql.connection.rollback()
+        if conn is not None:
+            conn.rollback()
         return jsonify({"error": str(e)}),500
     finally:
         if cur:
@@ -199,7 +212,7 @@ VALUES (%s, %s, %s)
 def produto(id_prod=None):
     cur = None
     try:
-        cur = mysql.connection.cursor()
+        conn = mysql.get_connection(); cur = conn.cursor()
         
         # GET: Listar produtos
         if request.method == 'GET':
@@ -242,7 +255,7 @@ def produto(id_prod=None):
                 dados.get('form_pgmto', ''),
                 imagem_bytes
             ))
-            mysql.connection.commit()
+            conn.commit()
             logging.info(f"✅ Produto cadastrado: {dados.get('nome_prod')}")
             return redirect(url_for('produto'))
             
@@ -284,21 +297,21 @@ def produto(id_prod=None):
                     id_prod
                 ))
             
-            mysql.connection.commit()
+            conn.commit()
             logging.info(f"✅ Produto atualizado: {dados.get('nome_prod')}")
             return jsonify({"message": "Produto atualizado com sucesso"})
 
         # DELETE: Excluir produto
         elif request.method == 'DELETE' and id_prod:
             cur.execute("DELETE FROM tbl_prod WHERE id_prod = %s", (id_prod,))
-            mysql.connection.commit()
+            conn.commit()
             logging.info(f"✅ Produto excluído: {id_prod}")
             return jsonify({"message": "Produto excluído com sucesso"})
             
     except Exception as e:
         logging.error(f"❌ Erro na rota /produto: {e}")
-        if mysql.connection:
-            mysql.connection.rollback()
+        if conn is not None:
+            conn.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
         if cur:
@@ -311,7 +324,7 @@ def produto_excel():
         logging.info("🚀 Iniciando geração do Excel...")
 
         # Cursor com DictCursor (agora funcionando corretamente)
-        cur = mysql.connection.cursor(DictCursor)
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         logging.info("✅ Cursor criado")
 
         cur.execute("SELECT * FROM tbl_prod")
@@ -405,7 +418,7 @@ def produto_excel():
 def teste_produtos():
     cur = None
     try:
-        cur = mysql.connection.cursor(DictCursor)
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         cur.execute("SELECT * FROM tbl_prod LIMIT 3")
 
         colunas = [i[0] for i in cur.description]
@@ -442,7 +455,7 @@ def pesquisa():
         
         try:
             print("🔌 Tentando conectar ao MySQL...")
-            conn = mysql.connection
+            conn = mysql.get_connection()
             cur = conn.cursor()
             print("✅ Conectado ao banco!\n")
 
@@ -522,7 +535,7 @@ def contato():
                                     erro="Todos os campos são obrigatórios!")
             
             # Criar cursor
-            cur = mysql.connection.cursor()
+            conn = mysql.get_connection(); cur = conn.cursor()
             
             # Inserir dados
             cur.execute("""
@@ -532,7 +545,7 @@ def contato():
             """, (nome, email, mensagem))
             
             # ORDEM CORRETA: commit antes de fechar
-            mysql.connection.commit()
+            conn.commit()
             cur.close()
             
             logging.info(f"📩 Mensagem recebida de {nome} ({email})")
@@ -561,7 +574,7 @@ if __name__ == '__main__':
     try:
         # Testa conexão antes de iniciar
         with app.app_context():
-            cur = mysql.connection.cursor()
+            conn = mysql.get_connection(); cur = conn.cursor()
             cur.execute("SELECT DATABASE(), VERSION()")
             db, version = cur.fetchone()
             cur.close()
@@ -579,7 +592,7 @@ from datetime import datetime
 def ger_clientes():
     if request.method == 'GET':
         try:
-            cur = mysql.connection.cursor()
+            conn = mysql.get_connection(); cur = conn.cursor()
             
             # Captura os parâmetros de data
             data_inicio = request.args.get('data_inicio')
@@ -627,7 +640,7 @@ def cliente_excel():
         logging.info("🚀 Iniciando geração do Excel...")
 
         # Cursor com DictCursor
-        cur = mysql.connection.cursor(DictCursor)
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         logging.info("✅ Cursor criado")
 
         # Buscar clientes
@@ -724,7 +737,7 @@ def cliente_excel():
 def pedidos():
     cur = None
     try:
-        cur = mysql.connection.cursor()
+        conn = mysql.get_connection(); cur = conn.cursor()
         cur.execute("SELECT * FROM tbl_prod")
         produtos = cur.fetchall()
         cur.execute("SELECT * FROM tbl_cliente")
@@ -760,7 +773,7 @@ def salvar_pedido():
         if not id_cliente:
             return jsonify({"status": "erro", "mensagem": "ID do cliente obrigatório"}), 400
         
-        cur = mysql.connection.cursor()
+        conn = mysql.get_connection(); cur = conn.cursor()
         
         # Não criar tabelas aqui — já existem no banco com a estrutura correta
         # O CREATE TABLE IF NOT EXISTS pode causar erro se a tabela foi alterada manualmente
@@ -790,7 +803,7 @@ def salvar_pedido():
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item))
         
-        mysql.connection.commit()
+        conn.commit()
         logging.info(f"✅ Pedido salvo: {id_pedido} com {len(carrinho)} itens")
         
         return jsonify({
@@ -802,8 +815,8 @@ def salvar_pedido():
         
     except Exception as e:
         logging.error(f"❌ Erro ao salvar pedido: {e}")
-        if mysql.connection:
-            mysql.connection.rollback()
+        if conn is not None:
+            conn.rollback()
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
     finally:
         if cur:
@@ -883,13 +896,13 @@ def enviar_whatsapp():
                 time.sleep(3)
                 
                 # Atualizar status do pedido no banco de dados
-                cur = mysql.connection.cursor()
+                conn = mysql.get_connection(); cur = conn.cursor()
                 cur.execute("""
                     UPDATE tbl_pedidos 
                     SET status_pedido = 'enviado_whatsapp'
                     WHERE id_pedido = %s
                 """, (id_pedido,))
-                mysql.connection.commit()
+                conn.commit()
                 cur.close()
                 
                 logging.info(f"✅ Pedido {id_pedido} marcado como enviado via WhatsApp")
@@ -905,13 +918,13 @@ def enviar_whatsapp():
                 logging.warning(f"⚠️ Erro ao enviar mensagem via Selenium: {e}")
                 # Mesmo se falhar o envio automático, registrar no banco
                 try:
-                    cur = mysql.connection.cursor()
+                    conn = mysql.get_connection(); cur = conn.cursor()
                     cur.execute("""
                         UPDATE tbl_pedidos 
                         SET status_pedido = 'pendente_whatsapp'
                         WHERE id_pedido = %s
                     """, (id_pedido,))
-                    mysql.connection.commit()
+                    conn.commit()
                     cur.close()
                 except:
                     pass
@@ -936,7 +949,7 @@ def enviar_whatsapp():
 def ger_pedidos():
     if request.method == 'GET':
         try:
-            cur = mysql.connection.cursor()
+            conn = mysql.get_connection(); cur = conn.cursor()
             
             # Captura os parâmetros de data
             data_inicio = request.args.get('data_inicio')
@@ -985,7 +998,7 @@ def pedidos_excel():
         logging.info("🚀 Iniciando geração do Excel...")
 
         # Cursor com DictCursor
-        cur = mysql.connection.cursor(DictCursor)
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         logging.info("✅ Cursor criado")
 
         # Buscar clientes
@@ -1087,7 +1100,7 @@ def pedidos_excel_clientes():
         logging.info("🚀 Iniciando geração do Excel...")
 
         # Cursor com DictCursor
-        cur = mysql.connection.cursor(DictCursor)
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         logging.info("✅ Cursor criado")
 
         # Buscar clientes
