@@ -6,6 +6,8 @@ Jinja2==3.1.6
 # Database & ORM
 PyMySQL==1.1.2
 mysql-connector-python==9.5.0
+flask-mysqldb==1.0.1
+
 
 # Environment & Configuration
 python-dotenv==1.2.1
