@@ -28,6 +28,7 @@
             <ul class="tabs-list">
                 <li class="tab-item"><a href="/contato">Fale Conosco</a></li>
                 <li class="tab-item" ><a href="/pesquisa" target="_blank">Pesquisa de Clima</a></li>
+                <li class="tab-item"><a href="" onclick="compartilharPagina()">✅ Compartilhar</a></li>
                 
             </ul>   
         </nav>
@@ -78,5 +79,33 @@
     <footer class="footer">
         <p>&copy; 2025 Date Analytics. Todos os direitos reservados.</p>
     </footer>
+    <script>
+        async function compartilharPagina() {
+            try {
+                const url = window.location.href;
+                const title = document.title;
+                
+                if (navigator.share) {
+                    await navigator.share({
+                        title: title,
+                        text: 'Conheça a Date Analytics - Soluções inteligentes em análise de dados!',
+                        url: url
+                    });
+                    console.log('Página compartilhada com sucesso!');
+                } else {
+                    // Fallback para navegadores que não suportam Web Share API
+                    const tempInput = document.createElement('input');
+                    tempInput.value = url;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert('Link copiado para a área de transferência!');
+                }
+            } catch (error) {
+                console.error('Erro ao compartilhar:', error);
+            }
+        }
+    </script>
 </body>
 </html>
