@@ -42,13 +42,25 @@ def b64encode_filter(data):
 class MySQLConnection:
     @staticmethod
     def get_connection():
-        return mysql_conn.connect(
-            host=db_config['host'],
-            user=db_config['user'],
-            password=db_config['password'],
-            database=db_config['database'],
-            port=db_config['port']
-        )
+        try:
+            conn = mysql_conn.connect(
+                host=db_config['host'],
+                user=db_config['user'],
+                password=db_config['password'],
+                database=db_config['database'],
+                port=db_config['port'],
+                autocommit=False
+            )
+            return conn
+        except mysql_conn.Error as e:
+            logging.error(f"❌ Erro ao conectar ao MySQL: {e}")
+            logging.error(f"   Host: {db_config['host']}")
+            logging.error(f"   User: {db_config['user']}")
+            logging.error(f"   Database: {db_config['database']}")
+            raise Exception(f"Erro de conexão com banco de dados: {str(e)}")
+        except Exception as e:
+            logging.error(f"❌ Erro inesperado ao conectar: {e}")
+            raise
 
 # Alias para compatibilidade
 mysql = MySQLConnection
