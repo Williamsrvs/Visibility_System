@@ -161,16 +161,53 @@ def lojista():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
-        nome_usuario = request.form.get('nome_usuario')
-        senha_usuario = request.form.get('senha_usuario')
-        if nome_usuario == 'admin' and senha_usuario == '859117':
-            success_message = f"✅ Login bem-sucedido para o usuário: {nome_usuario}"
-            return render_template('lojista.html', success_message=success_message)
-        else:
-            logging.warning(f"❌ Login falhou para o usuário: {nome_usuario}")
-            return render_template('login.html', erro="Usuário ou senha inválidos!")
+        nome_usuario = request.form.get('nome_usuario', '').strip()
+        senha_usuario = request.form.get('senha_usuario', '').strip()
+
+        # 🔹 LOGIN FIXO (ADMIN) — opcional
+        if nome_usuario == 'admin' and senha_usuario == '220485':
+            logging.info(f"✅ Login admin realizado: {nome_usuario}")
+            return redirect(url_for('lojista'))  # ou lojista
+
+        try:
+            conn = mysql.get_connection()
+            cur = conn.cursor(dictionary=True)
+
+            cur.execute("""
+                SELECT id_usuario, nome_usuario 
+                FROM tbl_cadastrar_usuario 
+                WHERE nome_usuario = %s AND senha_usuario = %s
+            """, (nome_usuario, senha_usuario))
+
+            usuario = cur.fetchone()
+
+            if usuario:
+                logging.info(f"✅ Login bem-sucedido: {nome_usuario}")
+                return redirect(url_for('lojista'))  # lojista.html
+            else:
+                logging.warning(f"❌ Usuário ou senha inválidos: {nome_usuario}")
+                return render_template(
+                    'login.html',
+                    erro="Usuário ou senha inválidos!"
+                )
+
+        except Exception as e:
+            logging.error(f"❌ Erro na rota /login: {e}")
+            return render_template(
+                'login.html',
+                erro="Erro interno. Tente novamente."
+            )
+
+        finally:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
+
     return render_template('login.html')
+
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
 def cadastrar_usuario():
@@ -1131,6 +1168,26 @@ def pedidos_excel_clientes():
             cur.close()
 
         logging.info("✅ Cursor fechado")
+
+
+@app.route('/nav_tabs', methods=['GET'])
+def nav_tabs():
+    try:
+        conn = mysql.get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod ORDER BY subgrupo ASC")
+        subgrupos = cur.fetchall()
+
+    except Exception as e:
+        logging.error(f"❌ Erro ao buscar subgrupos: {e}")
+        subgrupos = []
+
+    finally:
+        if cur:
+            cur.close()
+
+    return render_template('nav_tabs.html', subgrupos=subgrupos)
+
 
 # Permite acesso por IP local da rede
 app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)

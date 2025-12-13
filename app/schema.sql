@@ -60,8 +60,10 @@ FLUSH PRIVILEGES;
 CREATE TABLE u799109175_menu_prod.tbl_pedidos (
     id_pedido INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT NOT NULL,
+    id_prod INT NOT NULL,
     valor_total DECIMAL(10,2),
-    status_pedido VARCHAR(50) DEFAULT 'pendente',
+    numero_mesa text,
+    quantidade INT,
     dt_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     valor_total DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES tbl_cliente(id_cliente)
@@ -80,6 +82,7 @@ CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
     valor_total DECIMAL(10,2) NOT NULL,
     dt_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     nome_cliente VARCHAR(100),
+    numero_mesa INT null,
     telefone VARCHAR(100),
     FOREIGN KEY (id_pedido) REFERENCES tbl_pedidos(id_pedido),
     FOREIGN KEY (id_prod) REFERENCES tbl_prod(id_prod),
@@ -130,10 +133,37 @@ SELECT
     pe.nome_cliente,
     pe.telefone,
     pe.dt_registro,
-    ped.status_pedido
-FROM u799109175_menu_prod.tbl_detalhes_pedido pe
+    FROM u799109175_menu_prod.tbl_detalhes_pedido pe
 INNER JOIN u799109175_menu_prod.tbl_prod pr 
     ON pr.id_prod = pe.id_prod
 INNER JOIN u799109175_menu_prod.tbl_pedidos ped
     ON ped.id_pedido = pe.id_pedido
 ORDER BY pe.dt_registro DESC;
+
+CREATE VIEW u799109175_menu_prod.vw_subgrupo AS 
+SELECT
+    pr.id_prod,
+    pr.subgrupo,
+    pe.id_pedido,
+    SUM(pe.valor_total) AS total_valor
+FROM u799109175_menu_prod.tbl_prod pr
+INNER JOIN u799109175_menu_prod.tbl_pedidos pe
+    ON pr.id_prod = pe.id_pedido
+GROUP BY
+        pr.subgrupo;
+
+CREATE VIEW u799109175_menu_prod.vw_pedidos_bairro AS
+SELECT
+pe.id_pedido,
+SUM(quantidade) as total_qtde,
+sum(valor_total) AS total_valor,
+pe.dt_registro,
+cl.id_cliente,
+cl.bairro,
+cl.cidade,
+cl.uf
+FROM u799109175_bufet_lgourmet.tbl_detalhes_pedido pe
+JOIN u799109175_bufet_lgourmet.tbl_cliente cl
+ON pe.id_pedido = cl.id_cliente
+GROUP BY
+bairro;
