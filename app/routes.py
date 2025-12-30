@@ -94,12 +94,18 @@ def criar_tabelas():
 def index():
     conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT * FROM tbl_prod")
+        # Buscar todos os produtos ativos
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
         produtos = cur.fetchall()
-        return render_template('index.html', produtos=produtos)
+        
+        # Buscar subgrupos únicos para o filtro
+        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod WHERE ativo = 1 ORDER BY subgrupo ASC")
+        subgrupos = cur.fetchall()
+        
+        return render_template('index.html', produtos=produtos, subgrupos=subgrupos)
     except Exception as e:
         logging.error(f"❌ Erro ao buscar produtos: {e}")
-        return render_template('index.html', produtos=[])
+        return render_template('index.html', produtos=[], subgrupos=[])
     finally:
         cur.close()
 
@@ -262,9 +268,9 @@ def produto(id_prod=None):
     try:
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         
-        # GET: Listar produtos
+        # GET: Listar produtos (apenas ativos)
         if request.method == 'GET':
-            cur.execute("SELECT * FROM tbl_prod")
+            cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
             produtos = cur.fetchall()
             return render_template('produto.html', produtos=produtos)
             
@@ -287,7 +293,8 @@ def produto(id_prod=None):
                 status_promocao VARCHAR(50),
                 valor DECIMAL(10,2) NOT NULL,
                 form_pgmto VARCHAR(50),
-                imagem_url MEDIUMBLOB,    
+                imagem_url MEDIUMBLOB,
+                ativo TINYINT DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );""")
                 
@@ -349,12 +356,31 @@ def produto(id_prod=None):
             logging.info(f"✅ Produto atualizado: {dados.get('nome_prod')}")
             return jsonify({"message": "Produto atualizado com sucesso"})
 
-        # DELETE: Excluir produto
+        # DELETE: Excluir produto (soft delete - marcar como inativo)
         elif request.method == 'DELETE' and id_prod:
-            cur.execute("DELETE FROM tbl_prod WHERE id_prod = %s", (id_prod,))
-            conn.commit()
-            logging.info(f"✅ Produto excluído: {id_prod}")
-            return jsonify({"message": "Produto excluído com sucesso"})
+            try:
+                # Verificar se o produto existe e está ativo
+                cur.execute("SELECT id_prod, nome_prod FROM tbl_prod WHERE id_prod = %s AND ativo = 1", (id_prod,))
+                produto_existe = cur.fetchone()
+                
+                if not produto_existe:
+                    return jsonify({"error": "Produto não encontrado ou já foi deletado"}), 404
+                
+                # Marcar como inativo (soft delete)
+                cur.execute("UPDATE tbl_prod SET ativo = 0 WHERE id_prod = %s", (id_prod,))
+                
+                if cur.rowcount > 0:
+                    conn.commit()
+                    logging.info(f"✅ Produto desativado: {id_prod} - {produto_existe['nome_prod']}")
+                    return jsonify({"message": "Produto excluído com sucesso"}), 200
+                else:
+                    conn.rollback()
+                    return jsonify({"error": "Falha ao excluir o produto"}), 400
+                    
+            except Exception as delete_error:
+                conn.rollback()
+                logging.error(f"❌ Erro ao deletar produto {id_prod}: {delete_error}")
+                return jsonify({"error": f"Erro ao excluir: {str(delete_error)}"}), 500
             
     except Exception as e:
         logging.error(f"❌ Erro na rota /produto: {e}")
@@ -375,7 +401,7 @@ def produto_excel():
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
         logging.info("✅ Cursor criado")
 
-        cur.execute("SELECT * FROM tbl_prod")
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
         logging.info("✅ Query executada")
 
         colunas = [i[0] for i in cur.description]
@@ -467,7 +493,7 @@ def teste_produtos():
     cur = None
     try:
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
-        cur.execute("SELECT * FROM tbl_prod LIMIT 3")
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC LIMIT 3")
 
         colunas = [i[0] for i in cur.description]
         produtos = cur.fetchall()
@@ -786,7 +812,7 @@ def pedidos():
     cur = None
     try:
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
-        cur.execute("SELECT * FROM tbl_prod")
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
         produtos = cur.fetchall()
         cur.execute("SELECT * FROM tbl_cliente")
         clientes = cur.fetchall()
@@ -1187,6 +1213,31 @@ def nav_tabs():
             cur.close()
 
     return render_template('nav_tabs.html', subgrupos=subgrupos)
+
+@app.route('/subgrupo/<string:subgrupo>', methods=['GET'])
+def grupo(subgrupo):
+    try:
+        conn = mysql.get_connection()
+        cur = conn.cursor(dictionary=True)
+        
+        # Buscar produtos do subgrupo selecionado
+        cur.execute("SELECT * FROM tbl_prod WHERE subgrupo = %s AND ativo = 1 ORDER BY created_at DESC", (subgrupo,))
+        produtos = cur.fetchall()
+        
+        # Buscar todos os subgrupos para o filtro
+        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod WHERE ativo = 1 ORDER BY subgrupo ASC")
+        subgrupos = cur.fetchall()
+
+    except Exception as e:
+        logging.error(f"❌ Erro ao buscar produtos do grupo: {e}")
+        produtos = []
+        subgrupos = []
+
+    finally:
+        if cur:
+            cur.close()
+
+    return render_template('index.html', produtos=produtos, subgrupos=subgrupos, subgrupo_selecionado=subgrupo)
 
 
 # Permite acesso por IP local da rede

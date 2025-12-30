@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS tbl_prod (
     valor DECIMAL(10,2) NOT NULL,
     form_pgmto VARCHAR(50),
     imagem_url longblob,
+    ativo TINYINT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -290,12 +290,17 @@
         alert('Produto excluído com sucesso!');
         window.location.reload();
         } else {
-        alert('Erro ao excluir produto');
+        return response.json().then(data => {
+            console.error('Erro do servidor:', data);
+            alert('Erro ao excluir produto: ' + (data.error || 'Erro desconhecido'));
+        }).catch(() => {
+            alert('Erro ao excluir produto');
+        });
         }
     })
     .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao excluir produto');
+        console.error('Erro de rede:', error);
+        alert('Erro de conexão ao excluir produto: ' + error.message);
     });
     }
 </script>
