@@ -105,8 +105,8 @@ span {
 
 .tab-item a {
     text-decoration: none;
-    background-color: rgb(60, 102, 238);
-    color: #eaf4f5;
+    background-color: #934b2e(60, 102, 238);
+    color: #0c0c0c;
     padding: 5px 10px;
     display: block;
     font-weight: 500;
@@ -127,7 +127,7 @@ span {
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #007BFF;
+    background-color: #934b2e;
     transition: width 0.3s ease;
 }
 
@@ -195,11 +195,11 @@ body {
 
 .main-header {
     padding: 30px;
-    background: url('https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/novo%20banner2.png') center/cover no-repeat;
+    background: url('https://raw.githubusercontent.com/Williamsrvs/imagens_buffet_saas/refs/heads/main/banner.png') center/cover no-repeat;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     color: #f4f4f4;
 }
-
+    
 .share-button a {
     display: inline-flex;
     align-items: right;

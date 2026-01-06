@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS tbl_prod (
     valor DECIMAL(10,2) NOT NULL,
     form_pgmto VARCHAR(50),
     imagem_url longblob,
+    ativo TINYINT DEFAULT 1,    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS tbl_pesquisa_satisfacao (
                     data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 
-CREATE TABLE u799109175_menu_prod.tbl_fale_conosco(
+CREATE TABLE u799109175_bufet_lgourmet.tbl_fale_conosco(
     id_fconosco INT AUTO_INCREMENT NOT null PRIMARY KEY,
     nome varchar(150),
     email varchar(150),
@@ -57,7 +58,7 @@ GRANT ALL PRIVILEGES ON u799109175_dbflask_menu.* TO 'u799109175_dbflask_menu'@'
 FLUSH PRIVILEGES;
 
 
-CREATE TABLE u799109175_menu_prod.tbl_pedidos (
+CREATE TABLE u799109175_bufet_lgourmet.tbl_pedidos (
     id_pedido INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     id_cliente INT NOT NULL,
     id_prod INT NOT NULL,
@@ -72,7 +73,7 @@ CREATE TABLE u799109175_menu_prod.tbl_pedidos (
 
 # Criar uma tabela relacionada entre a cliente e produto para detalhes do pedido
 
-CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
+CREATE TABLE u799109175_bufet_lgourmet.tbl_detalhes_pedido (
     id_detalhe INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     id_pedido INT NOT NULL,
     id_prod INT NOT NULL,
@@ -93,7 +94,7 @@ CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
 -- VIEWs para Relatório de Pedidos
 -- ============================================
 
-CREATE OR REPLACE VIEW u799109175_menu_prod.vw_pedidos_fin AS
+CREATE OR REPLACE VIEW u799109175_bufet_lgourmet.vw_pedidos_fin AS
 SELECT
     pe.id_pedido,
     pr.nome_prod,
@@ -103,12 +104,12 @@ SELECT
     pe.nome_cliente,
     pe.telefone,
     pe.dt_registro
-FROM u799109175_menu_prod.tbl_detalhes_pedido pe
-INNER JOIN u799109175_menu_prod.tbl_prod pr 
+FROM u799109175_bufet_lgourmet.tbl_detalhes_pedido pe
+INNER JOIN u799109175_bufet_lgourmet.tbl_prod pr 
     ON pr.id_prod = pe.id_prod
 ORDER BY pe.dt_registro DESC;
 
-CREATE OR REPLACE VIEW u799109175_menu_prod.vw_resumo_pedidos_cliente AS
+CREATE OR REPLACE VIEW u799109175_bufet_lgourmet.vw_resumo_pedidos_cliente AS
 SELECT
     pe.nome_cliente,
     pe.telefone,
@@ -117,11 +118,11 @@ SELECT
     SUM(pe.quantidade) AS quantidade_total,
     SUM(pe.valor_total) AS valor_total_cliente,
     MAX(pe.dt_registro) AS ultimo_pedido
-FROM u799109175_menu_prod.tbl_detalhes_pedido pe
+FROM u799109175_bufet_lgourmet.tbl_detalhes_pedido pe
 GROUP BY pe.nome_cliente, pe.telefone
 ORDER BY SUM(pe.valor_total) DESC;
 
-CREATE OR REPLACE VIEW u799109175_menu_prod.vw_pedidos_detalhado AS
+CREATE OR REPLACE VIEW u799109175_bufet_lgourmet.vw_pedidos_detalhado AS
 SELECT
     pe.id_pedido,
     pe.id_detalhe,
@@ -133,21 +134,21 @@ SELECT
     pe.nome_cliente,
     pe.telefone,
     pe.dt_registro,
-    FROM u799109175_menu_prod.tbl_detalhes_pedido pe
-INNER JOIN u799109175_menu_prod.tbl_prod pr 
+    FROM u799109175_bufet_lgourmet.tbl_detalhes_pedido pe
+INNER JOIN u799109175_bufet_lgourmet.tbl_prod pr 
     ON pr.id_prod = pe.id_prod
-INNER JOIN u799109175_menu_prod.tbl_pedidos ped
+INNER JOIN u799109175_bufet_lgourmet.tbl_pedidos ped
     ON ped.id_pedido = pe.id_pedido
 ORDER BY pe.dt_registro DESC;
 
-CREATE VIEW u799109175_menu_prod.vw_subgrupo AS 
+CREATE VIEW u799109175_bufet_lgourmet.vw_subgrupo AS 
 SELECT
     pr.id_prod,
     pr.subgrupo,
     pe.id_pedido,
     SUM(pe.valor_total) AS total_valor
-FROM u799109175_menu_prod.tbl_prod pr
-INNER JOIN u799109175_menu_prod.tbl_pedidos pe
+FROM u799109175_bufet_lgourmet.tbl_prod pr
+INNER JOIN u799109175_bufet_lgourmet.tbl_pedidos pe
     ON pr.id_prod = pe.id_pedido
 GROUP BY
         pr.subgrupo;

@@ -1,17 +1,17 @@
 
 db_config = {
     'host': 'auth-db1937.hstgr.io',
-    'user': 'u799109175_menu_prod',
+    'user': 'u799109175_bufet_lgourmet',
     'password': 'Q1k2v1y5@2025',  
-    'database': 'u799109175_menu_prod',  
+    'database': 'u799109175_bufet_lgourmet',  
     'port': 3306
 }
 class Config:
     # ✅ REMOVIDA A BARRA NO FINAL
     MYSQL_HOST = 'auth-db1937.hstgr.io'
-    MYSQL_USER = 'u799109175_menu_prod'
+    MYSQL_USER = 'u799109175_bufet_lgourmet'
     MYSQL_PASSWORD = 'Q1k2v1y5@2025'
-    MYSQL_DB = 'u799109175_menu_prod'
+    MYSQL_DB = 'u799109175_bufet_lgourmet'
     MYSQL_PORT = 3306
 
     # Configurações específicas do Flask-MySQLdb

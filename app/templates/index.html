@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍔 Catálogo Digital</title>
+    <title> Portifólio Luisa Gourmet</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,11 +17,7 @@
 </div>
 
         </div>  
-        
-        <div class="logo-container">
-            <img src="https://cdn.neemo.com.br/uploads/settings_webdelivery/logo/15104/01logo_web_push.png" alt="Logo Service Tour">
-        
-        </div>
+    
     </header>
 
     <div class="select-box">
@@ -73,7 +69,7 @@
                             <strong><h4>R$ Valor:</h4></strong><div class="product-price">R$ {{ "%.2f"|format(p.valor|float) }}</div>
 
                             <div class="tab-item">
-                                <a href="pedidos">✅ Comprar</a>
+                                <a href="/pedidos">✅ Comprar</a>
                             </div>
 
                         </div>  

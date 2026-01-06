@@ -18,7 +18,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 from urllib.parse import quote
 
-# Configuração de logging
+# Configuração de logging   
 logging.basicConfig(
     level=logging.INFO,
     filename='app_errors.log',
@@ -95,7 +95,7 @@ def index():
     conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
     try:
         # Buscar todos os produtos ativos
-        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo >= 0 ORDER BY created_at DESC")
         produtos = cur.fetchall()
         
         # Buscar subgrupos únicos para o filtro
@@ -270,7 +270,7 @@ def produto(id_prod=None):
         
         # GET: Listar produtos (apenas ativos)
         if request.method == 'GET':
-            cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
+            cur.execute("SELECT * FROM tbl_prod WHERE ativo >= 0 ORDER BY created_at DESC")
             produtos = cur.fetchall()
             return render_template('produto.html', produtos=produtos)
             
@@ -613,7 +613,7 @@ def contato():
             
             # Inserir dados
             cur.execute("""
-                INSERT INTO u799109175_menu_prod.tbl_fale_conosco 
+                INSERT INTO u799109175_bufet_lgourmet.tbl_fale_conosco 
                 (nome, email, mensagem)
                 VALUES (%s, %s, %s)
             """, (nome, email, mensagem))

@@ -11,9 +11,9 @@ import MySQLdb
 try:
     conn = MySQLdb.connect(
         host="193.203.175.250",
-        user="u799109175_menu_prod",
+        user="u799109175_bufet_lgourmet",
         passwd="Q1k2v1y5@2025",
-        db="u799109175_menu_prod",
+        db="u799109175_bufet_lgourmet",
         port=3306
     )
     cursor = conn.cursor()
