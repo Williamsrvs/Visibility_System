@@ -56,25 +56,13 @@
     <label for="subgrupo">Subgrupo</label>
     <select id="subgrupo" name="subgrupo" required class="form-control">
     <option value="">Selecione um subgrupo</option>
-    <option value="Prato da Casa">Prato da Casa (*)</option>
-    <option value="Sanduiche">Sanduíche</option>
-    <option value="Sanduiche Natural">Sanduíche Natural</option>
-    <option value="Sanduiche Fitness">Sanduíche Fitness</option>
-    <option value="Hot Dog">Hot Dog</option>
-    <option value="Hamburguer">Hamburguer</option>
-    <option value="Churrasco Grego">Churrasco Grego</option>
-    <option value="Lasanha">Lasanha</option>
-    <option value="Pastel">Patel</option>
-    <option value="Salgados">Salgados</option>
-    <option value="Tortas">Tortas</option>
-    <option value="Hamburguer Natural">Hamburguer Natural</option>
-    <option value="Pizza Pequena">Pizza Pequena</option>
-    <option value="Pizza Média">Pizza Média</option>
-    <option value="Pizza Grande">Pizza Grande</option>
-    <option value="Macarronada">Macarronada</option>
-    <option value="Tapioca">Tapioca</option>
-    <option value="Bebidas">Bebidas</option>
-    <option value="Sobremesa">Sobremesa</option>
+    <option value="Decoração">Decoração (*)</option>
+    <option value="Locação Cadeiras">Locação Cadeiras</option>
+    <option value="Locação Mesas">Locação Mesas</option>
+    <option value="Locação Pratos e Utensilios">Locação Pratos e utensilios</option>
+    <option value="Buffet">Buffet</option>
+    <option value="Tampos Madeirite">Tampos Madeirite</option>
+
     </select>
     </div>
 
@@ -157,25 +145,13 @@
             <label for="edit_subgrupo{{ p.id_prod }}">Subgrupo:</label>
             <select id="edit_subgrupo{{ p.id_prod }}" name="subgrupo" required class="form-control">
             <option value="">Selecione um subgrupo</option>
-            <option value="Prato da Casa" {% if p.subgrupo == 'Prato da Casa' %}selected{% endif %}>Prato da Casa (*)</option>
-            <option value="Hot Dog" {% if p.subgrupo == 'Hot Dog' %}selected{% endif %}>Hot Dog</option>
-            <option value="Churrasco Grego" {% if p.subgrupo == 'Churrasco Grego' %}selected{% endif %}>Churrasco Grego</option>
-            <option value="Lasanha" {% if p.subgrupo == 'Lasanha' %}selected{% endif %}>Lasanha</option>
-            <option value="Hamburguer" {% if p.subgrupo == 'Hamburguer' %}selected{% endif %}>Hamburguer</option>
-            <option value="Sanduiche Fitness" {% if p.subgrupo == 'Sanduiche Fitness' %}selected{% endif %}>Sanduíche Fitness</option><option value="Hamburguer Natural" {% if p.subgrupo == 'Hamburguer Natural' %}selected{% endif %}>Hamburguer Natural</option>
-            <option value="Sanduiche" {% if p.subgrupo == 'Sanduiche' %}selected{% endif %}>Sanduíche</option>
-            <option value="Hamburguer Natural" {% if p.subgrupo == 'Hamburguer Natural' %}selected{% endif %}>Hamburguer Natural</option>
-            <option value="Pastel" {% if p.subgrupo == 'Pastel' %}selected{% endif %}>Pastel</option>
-            <option value="Salgados" {% if p.subgrupo == 'Salgados' %}selected{% endif %}>Salgados</option>
-            <option value="Tortas" {% if p.subgrupo == 'Tortas' %}selected{% endif %}>Tortas</option>
-            <option value="Sanduiche Natural" {% if p.subgrupo == 'Sanduiche Natural' %}selected{% endif %}>Sanduíche Natural</option>
-            <option value="Pizza Pequena" {% if p.subgrupo == 'Pizza Pequena' %}selected{% endif %}>Pizza Pequena</option>
-            <option value="Pizza Média" {% if p.subgrupo == 'Pizza Média' %}selected{% endif %}>Pizza Média</option>
-            <option value="Pizza Grande" {% if p.subgrupo == 'Pizza Grande' %}selected{% endif %}>Pizza Grande</option>
-            <option value="Macarronada" {% if p.subgrupo == 'Macarronada' %}selected{% endif %}>Macarronada</option>
-            <option value="Tapioca" {% if p.subgrupo == 'Tapioca' %}selected{% endif %}>Tapioca</option>
-            <option value="Bebidas" {% if p.subgrupo == 'Bebidas' %}selected{% endif %}>Bebidas</option>
-            <option value="Sobremesa" {% if p.subgrupo == 'Sobremesa' %}selected{% endif %}>Sobremesa</option>
+            <option value="Decoração" {% if p.subgrupo == 'Decoração' %}selected{% endif %}>Decoração</option>
+            <option value="Locação Cadeiras" {% if p.subgrupo == 'Locação Cadeiras' %}selected{% endif %}>Locação Cadeiras</option>
+            <option value="Locação Mesas" {% if p.subgrupo == 'Locação Mesas' %}selected{% endif %}>Locação Mesas</option>
+            <option value="Buffet" {% if p.subgrupo == 'Buffet' %}selected{% endif %}>Buffet</option>
+            <option value="Tampos Madeirite" {% if p.subgrupo == 'Tampos Madeirite' %}selected{% endif %}>Tampos Madeirite</option>
+            
+        
         </select>
         </div>
         </div>

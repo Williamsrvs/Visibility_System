@@ -48,7 +48,7 @@ def configure_local_mysql():
     print("   Execute este comando:")
     print("   docker run --name mysql-local \\")
     print("     -e MYSQL_ROOT_PASSWORD=root \\")
-    print("     -e MYSQL_DATABASE=catalogo_digital \\")
+    print("     -e MYSQL_DATABASE=u799109175_bufet_lgourmet \\")
     print("     -p 3306:3306 -d mysql:8.0")
     
     print("\n3️⃣  XAMPP/WAMP/MAMP")
@@ -68,7 +68,7 @@ def main():
     host = os.getenv('MYSQL_HOST', 'localhost')
     user = os.getenv('MYSQL_USER', 'root')
     password = os.getenv('MYSQL_PASSWORD', '')
-    database = os.getenv('MYSQL_DB', 'catalogo_digital')
+    database = os.getenv('MYSQL_DB', 'u799109175_bufet_lgourmet')
     port = int(os.getenv('MYSQL_PORT', 3306))
     
     print("\n📝 CONFIGURAÇÃO ATUAL:")
@@ -127,7 +127,7 @@ MYSQL_PORT=3306
             host = os.getenv('MYSQL_HOST', 'localhost')
             user = os.getenv('MYSQL_USER', 'root')
             password = os.getenv('MYSQL_PASSWORD', '')
-            database = os.getenv('MYSQL_DB', 'catalogo_digital')
+            database = os.getenv('MYSQL_DB', 'u799109175_bufet_lgourmet')
             port = int(os.getenv('MYSQL_PORT', 3306))
             
             print(f"\n🔗 Testando nova conexão em {host}...")
