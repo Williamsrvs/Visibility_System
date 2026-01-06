@@ -1212,7 +1212,7 @@ def nav_tabs():
         if cur:
             cur.close()
 
-    return render_template('nav_tabs.html', subgrupos=subgrupos)
+    return render_template('nav_tabs.html', subgrupos=subgrupos)    
 
 @app.route('/subgrupo/<string:subgrupo>', methods=['GET'])
 def grupo(subgrupo):
