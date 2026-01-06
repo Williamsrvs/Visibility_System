@@ -288,3 +288,4 @@ Este projeto é fornecido como está. Use livremente.
 **Desenvolvido com ❤️ para Williams**
 
 Última atualização: 27 de novembro de 2025
+# sistema_buffet_luisa_gourmet
