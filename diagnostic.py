@@ -9,9 +9,9 @@ from mysql.connector import Error
 
 db_config = {
     'host': 'auth-db1937.hstgr.io',
-    'user': 'u799109175_bufet_lgourmet',
+    'user': 'u799109175_menu_prod',
     'password': 'Q1k2v1y5@2025',  
-    'database': 'u799109175_bufet_lgourmet',  
+    'database': 'u799109175_menu_prod',  
     'port': 3306
 }
 

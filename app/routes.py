@@ -613,7 +613,7 @@ def contato():
             
             # Inserir dados
             cur.execute("""
-                INSERT INTO u799109175_bufet_lgourmet.tbl_fale_conosco 
+                INSERT INTO u799109175_menu_prod.tbl_fale_conosco 
                 (nome, email, mensagem)
                 VALUES (%s, %s, %s)
             """, (nome, email, mensagem))

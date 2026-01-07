@@ -25,7 +25,7 @@ print("-"*70)
 host = os.getenv('MYSQL_HOST', 'localhost')
 user = os.getenv('MYSQL_USER', 'root')
 password = os.getenv('MYSQL_PASSWORD', '')
-database = os.getenv('MYSQL_DB', 'u799109175_bufet_lgourmet')
+database = os.getenv('MYSQL_DB', 'u799109175_menu_prod')
 port = int(os.getenv('MYSQL_PORT', 3306))
 
 print(f"✓ Host: {host}")
@@ -54,7 +54,7 @@ except socket.error as e:
     print(f"  Sugestões:")
     print(f"  • Verifique o endereço do host")
     print(f"  • Inicie o MySQL/MariaDB")
-    print(f"  • Se usar Docker: docker run --name mysql-local -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=u799109175_bufet_lgourmet -p 3306:3306 -d mysql:8.0")
+    print(f"  • Se usar Docker: docker run --name mysql-local -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=u799109175_menu_prod -p 3306:3306 -d mysql:8.0")
 
 # 3. Verificar mysql.connector
 print("\n📦 PASSO 3: VERIFICANDO BIBLIOTECAS PYTHON")
@@ -121,7 +121,7 @@ except mysql.connector.Error as e:
         print(f"  • Verifique credenciais no arquivo .env")
     elif error_code == 1049:
         print(f"  • Banco de dados '{database}' não existe")
-        print(f"  • Crie com: mysql -u {user} -p -e 'CREATE DATABASE u799109175_bufet_lgourmet;'")
+        print(f\"  • Crie com: mysql -u {user} -p -e 'CREATE DATABASE u799109175_menu_prod;'\")
     else:
         print(f"  • Código de erro: {error_code}")
     
