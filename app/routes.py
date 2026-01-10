@@ -1316,7 +1316,23 @@ def grupo(subgrupo):
 
 @app.route('/pedidos_cliente', methods=['GET'])
 def pedidos_cliente():
-    return render_template('pedidos_cliente.html')
+    conn = mysql.get_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        # Buscar apenas produtos ativos (ativo = 1)
+        cur.execute("SELECT id_prod, nome_prod, valor FROM tbl_prod WHERE ativo = 1 ORDER BY nome_prod ASC")
+        produtos = cur.fetchall()
+        
+        # Buscar clientes para dropdown
+        cur.execute("SELECT id_cliente, nome_cliente FROM tbl_cliente ORDER BY nome_cliente ASC")
+        clientes = cur.fetchall()
+        
+        return render_template('pedidos_cliente.html', produtos=produtos, clientes=clientes)
+    except Exception as e:
+        logging.error(f"❌ Erro ao carregar produtos para pedidos_cliente: {e}")
+        return render_template('pedidos_cliente.html', produtos=[], clientes=[])
+    finally:
+        cur.close()
 
 
 # Permite acesso por IP local da rede

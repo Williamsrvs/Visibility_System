@@ -784,13 +784,14 @@
         const CHAVE_PIX = '05566941478';
         const NOME_BENEFICIARIO = 'WILLIAMS RODRIGUES VIEIRA SILVA';
 
-        // Simulação de produtos (substitua pela sua lógica de carregamento)
+        // Produtos carregados do servidor Flask
         let produtosDisponiveis = [
-            { id: 1, nome: "Hambúrguer Artesanal", valor: 25.90 },
-            { id: 2, nome: "Pizza Margherita", valor: 35.00 },
-            { id: 3, nome: "Refrigerante 2L", valor: 8.50 },
-            { id: 4, nome: "Batata Frita Grande", valor: 15.00 }
+            {% for produto in produtos %}
+            { id: {{ produto['id_prod'] }}, nome: "{{ produto['nome_prod'] }}", valor: {{ produto['valor'] }} }{% if not loop.last %},{% endif %}
+            {% endfor %}
         ];
+
+        console.log('📦 Produtos carregados do servidor:', produtosDisponiveis.length, produtosDisponiveis);
 
         // Formatação de telefone
         document.getElementById('customerPhone').addEventListener('input', function(e) {
@@ -808,12 +809,16 @@
         });
 
         function addProductField() {
+            console.log('🔍 [CLIQUE] Botão clicado! Produtos disponíveis:', produtosDisponiveis);
+            
             if (!produtosDisponiveis || produtosDisponiveis.length === 0) {
-                alert('❌ Nenhum produto disponível!');
+                console.error('❌ ERRO: Nenhum produto disponível!');
+                alert('❌ Nenhum produto disponível!\n\nVerifique:\n1. Há produtos cadastrados?\n2. Os produtos estão marcados como "Ativo"?\n3. Atualize a página (Ctrl+F5)');
                 return;
             }
 
             productCounter++;
+            console.log('✅ Criando campo de produto #' + productCounter);
             
             const productsList = document.getElementById('productsList');
             const emptyState = document.getElementById('emptyProductsState');
@@ -1306,7 +1311,18 @@
             }
         });
 
-        document.getElementById('btnAddProduct')?.addEventListener('click', addProductField);
+        // Event listener para o botão "Adicionar Produto"
+        const btnAddProduct = document.getElementById('btnAddProduct');
+        if (btnAddProduct) {
+            console.log('✅ Botão encontrado:', btnAddProduct);
+            btnAddProduct.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🖱️ Botão clicado!');
+                addProductField();
+            });
+        } else {
+            console.error('❌ Botão btnAddProduct não encontrado!');
+        }
 
         // Handler para botão Salvar Pedido (se não tiver evento listener)
         if (document.getElementById('salvar_pedido')) {
