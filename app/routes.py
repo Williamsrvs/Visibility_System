@@ -94,11 +94,11 @@ def criar_tabelas():
 def index():
     conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
     try:
-        # Buscar todos os produtos ativos
-        cur.execute("SELECT * FROM tbl_prod WHERE ativo >= 0 ORDER BY created_at DESC")
+        # Buscar apenas produtos ativos (ativo = 1)   
+        cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
         produtos = cur.fetchall()
         
-        # Buscar subgrupos únicos para o filtro
+        # Buscar subgrupos únicos apenas de produtos ativos
         cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod WHERE ativo = 1 ORDER BY subgrupo ASC")
         subgrupos = cur.fetchall()
         
@@ -270,7 +270,7 @@ def produto(id_prod=None):
         
         # GET: Listar produtos (apenas ativos)
         if request.method == 'GET':
-            cur.execute("SELECT * FROM tbl_prod WHERE ativo >= 0 ORDER BY created_at DESC")
+            cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
             produtos = cur.fetchall()
             return render_template('produto.html', produtos=produtos)
             
@@ -384,6 +384,49 @@ def produto(id_prod=None):
             
     except Exception as e:
         logging.error(f"❌ Erro na rota /produto: {e}")
+        if conn is not None:
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+
+@app.route('/produto/<int:id_prod>/visibilidade', methods=['PATCH'])
+def atualizar_visibilidade_produto(id_prod):
+    """Atualizar visibilidade do produto (ativo/inativo)"""
+    cur = None
+    try:
+        dados = request.get_json()
+        
+        if not dados or 'ativo' not in dados:
+            return jsonify({"error": "Campo 'ativo' é obrigatório"}), 400
+        
+        status = 1 if dados.get('ativo') else 0
+        
+        conn = mysql.get_connection()
+        cur = conn.cursor(dictionary=True)
+        
+        # Verificar se produto existe
+        cur.execute("SELECT id_prod, nome_prod FROM tbl_prod WHERE id_prod = %s", (id_prod,))
+        produto = cur.fetchone()
+        
+        if not produto:
+            return jsonify({"error": "Produto não encontrado"}), 404
+        
+        # Atualizar visibilidade
+        cur.execute("UPDATE tbl_prod SET ativo = %s WHERE id_prod = %s", (status, id_prod))
+        conn.commit()
+        
+        status_text = "visível" if status == 1 else "oculto"
+        logging.info(f"✅ Produto {id_prod} ({produto['nome_prod']}) agora está {status_text}")
+        
+        return jsonify({
+            "message": f"Produto agora está {status_text}",
+            "ativo": status
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"❌ Erro ao atualizar visibilidade do produto {id_prod}: {e}")
         if conn is not None:
             conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -825,6 +868,36 @@ def pedidos():
             cur.close()
 
 
+@app.route('/api/produtos', methods=['GET'])
+def api_produtos():
+    """Endpoint para carregar produtos via AJAX"""
+    cur = None
+    try:
+        conn = mysql.get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.execute("SELECT id_prod, nome_prod, valor FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
+        produtos = cur.fetchall()
+        
+        if not produtos:
+            return jsonify({"status": "sucesso", "produtos": [], "mensagem": "Nenhum produto encontrado"})
+        
+        return jsonify({
+            "status": "sucesso",
+            "produtos": produtos,
+            "total": len(produtos)
+        })
+    except Exception as e:
+        logging.error(f"❌ Erro ao buscar produtos via API: {e}")
+        return jsonify({
+            "status": "erro",
+            "mensagem": str(e),
+            "produtos": []
+        }), 500
+    finally:
+        if cur:
+            cur.close()
+
+
 @app.route('/salvar_pedido', methods=['POST'])
 def salvar_pedido():
     cur = None
@@ -839,6 +912,11 @@ def salvar_pedido():
         nome_cliente = dados.get('nome_cliente')
         telefone_cliente = dados.get('telefone_cliente')
         numero_mesa = dados.get('numero_mesa')
+        endereco = dados.get('endereco', '')
+        bairro = dados.get('bairro', '')
+        ponto_referencia = dados.get('ponto_referencia', '')
+        form_pgmto = dados.get('form_pgmto', '')
+        tipo_consumo = dados.get('tipo_consumo', '')
         
         if not carrinho:
             return jsonify({"status": "erro", "mensagem": "Carrinho vazio"}), 400
@@ -847,9 +925,6 @@ def salvar_pedido():
             return jsonify({"status": "erro", "mensagem": "ID do cliente obrigatório"}), 400
         
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
-        
-        # Não criar tabelas aqui — já existem no banco com a estrutura correta
-        # O CREATE TABLE IF NOT EXISTS pode causar erro se a tabela foi alterada manualmente
         
         # Calcular valor total do pedido
         valor_total = sum(float(item.get('subtotal', 0)) for item in carrinho)
@@ -872,9 +947,9 @@ def salvar_pedido():
             
             cur.execute("""
                 INSERT INTO tbl_detalhes_pedido 
-                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa))
+                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo))
         
         conn.commit()
         logging.info(f"✅ Pedido salvo: {id_pedido} com {len(carrinho)} itens")

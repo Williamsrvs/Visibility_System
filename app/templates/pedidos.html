@@ -23,7 +23,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f4f50 0%, #424144 100%);
             color: #333;
             display: flex;
             flex-direction: column;
@@ -49,7 +49,7 @@
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 25px 40px;
+            padding: 15px 25    px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 10;
@@ -82,7 +82,7 @@
             display: flex;
             flex: 1;
             gap: 25px;
-            max-width: 1400px;
+            max-width: 1800px;
             width: 100%;
             margin: 30px auto;
             padding: 0 30px;
@@ -174,8 +174,8 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             height: fit-content;
-            position: sticky;
-            top: 30px;
+            position: flex-end;
+            top: 80px;
         }
 
         .product-item {
@@ -457,7 +457,34 @@
             border-color: rgba(255, 255, 255, 0.8);
         }
 
-        .btn-remove-product {
+
+        .btn-add-cliente {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add-cliente:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .btn-remove-cliente {
             background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
             color: white;
             border: none;
@@ -644,7 +671,7 @@
     <div class="header">
         <div class="header-content">
             <h1>🛍️ Sistema de Pedidos</h1>
-            <button onclick="window.location.href='/'" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:16px; color:#667eea; font-weight:600;">🏠 Voltar ao Início</button>
+            <button onclick="window.location.href='/lojista'" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:16px; color:#667eea; font-weight:600;">🏠 Voltar ao Início</button>
         </div>
     </div>
 
@@ -660,18 +687,54 @@
                         <option value="">Selecione um cliente...</option>
                         {% for cliente in clientes %}
                         <option value="{{ cliente['id_cliente'] }}" data-phone="{{ cliente['telefone'] }}">{{ cliente['nome_cliente'] }}</option>
-                        {% endfor %}
+                        {% endfor %}    
+                    </select>
+                </div>
+
+                <div class="customer-form-group">
+                    <label>Endereço</label>
+                    <input type="text" id="customerAddress" placeholder="Digite o endereço completo">
+                </div>
+
+                <div class="customer-form-group">
+                    <label>Bairro</label>
+                    <input type="text" id="customerBairro" placeholder="Digite o bairro">
+                </div>
+
+                <div class="customer-form-group">
+                    <label>Ponto Referência</label>
+                    <input type="text" id="customerReferencia" placeholder="Digite um ponto de referência">
+                </div>
+
+                <div class="customer-form-group">
+                    <label for="form_pgmto">Forma de Pagamento</label>
+                    <select id="form_pgmto" name="form_pgmto" class="form-control">
+                        <option value="">Selecione uma forma de pagamento</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão">Cartão</option>
+                    </select>
+                </div>
+
+                <div class="customer-form-group">
+                    <label for="tipo_consumo">Tipo de Consumo</label>
+                    <select id="tipo_consumo" name="tipo_consumo" class="form-control">
+                        <option value="Selecione o tipo de consumo">Selecione o tipo de consumo</option>
+                        <option value="No Local">No Local</option>
+                        <option value="Delivery">Delivery</option>
+                        <option value="Retirada">Retirada</option>
                     </select>
                 </div>
 
                 <div class="customer-form-group">
                     <label>Telefone/WhatsApp</label>
-                    <input type="tel" id="customerPhone" placeholder="(00) 00000-0000" maxlength="15" required>
+                    <input type="tel" id="customerPhone" placeholder="(00) 00000-0000" maxlength="15">
                 </div>
+
                 <div class="customer-form-group">
-                <label>Nº Mesa</label>
-                <input type="number" id="tableNumber" name="numero_mesa" placeholder="Digite o número da mesa (opcional)" min="1">
-            </div>
+                    <label>Nº Mesa</label>
+                    <input type="number" id="tableNumber" name="numero_mesa" placeholder="Digite o número da mesa (opcional)" min="0">
+                </div>
             </div>
 
             
@@ -682,11 +745,11 @@
                 <!-- Produtos serão adicionados dinamicamente -->
             </div>
 
-            <button class="btn-add-product" type="submit" id="btnAddProduct">
+            <button class="btn-add-product" type="button" id="btnAddProduct">
                 <span style="font-size: 20px;">+</span> Adicionar Produto
-            </button>
+            </button>   
 
-            <a class="btn-add-product" href="/cliente" id="btnAddProduct">
+            <a class="btn-add-cliente" href="/cliente" id="btnCadastrarCliente" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span style="font-size: 20px;">👤</span> Cadastrar Cliente
             </a>
 
@@ -715,18 +778,17 @@
                 <div class="amount" id="totalAmount">R$ 0,00</div>
             </div>
 
-            <div class="qr-label">Escaneie o QR Code para pagamento PIX</div>
-            <div id="qrcode">
-                <div class="empty-state">
-                    <div class="empty-state-icon">📱</div>
-                    <div class="empty-state-text">QR Code será gerado<br>após adicionar produtos</div>
-                </div>
+            <div id="qrcodeContainer" style="display: none;">
+                <div class="qr-label">📱 Escaneie para pagar com PIX</div>
+                <div id="qrcode"></div>
+                <p style="font-size: 12px; color: #718096; text-align: center; margin-top: 10px;">
+                    Chave PIX (Cópia e Cola):<br>
+                    <input type="text" id="pixKeyCopyPaste" readonly style="width: 90%; padding: 8px; margin-top: 5px; border: 1px solid #e2e8f0; border-radius: 5px; background: #f7fafc; font-size: 11px; text-align: center;" onclick="this.select()">
+                </p>
             </div>
 
-            <button class="btn-checkout" type="button" id="checkoutBtn">Finalizar Pedido</button>
             <button class="btn-checkout" type="button" id="whatsappBtn" style="background: linear-gradient(135deg, #25d366 0%, #20ba58 100%); margin-top: 12px;">📱 Enviar via WhatsApp</button>
-            <button class="btn-checkout" type="button" id="printBtn" style="background: linear-gradient(135deg, #85113d 0%, #92164a 100%); margin-top: 12px;">
-            🖨️ Imprimir Pedido
+            <button class="btn-checkout" type="button" id="printBtn" style="background: linear-gradient(135deg, #85113d 0%, #92164a 100%); margin-top: 12px;">🖨️ Imprimir Pedido
             </button>
 
         </div>
@@ -760,11 +822,34 @@
         }
 
         // Lista de produtos disponíveis (do banco de dados)
-        const produtosDisponiveis = [
+        let produtosDisponiveis = [
             {% for produto in produtos %}
-            { id: {{ produto['id_prod'] }}, nome: "{{ produto['nome_prod'] }}", valor: {{ produto['valor'] }} }{{ "," if not loop.last }}
+            { id: {{ produto['id_prod'] }}, nome: "{{ produto['nome_prod'] }}", valor: {{ produto['valor'] }} }{% if not loop.last %},{% endif %}
             {% endfor %}
         ];
+        
+        // Debug: Verificar se produtos foram carregados
+        if (produtosDisponiveis.length === 0) {
+            console.warn('⚠️ Tentando carregar produtos via AJAX...');
+            // Se o template Jinja2 não conseguiu, tentar carregar via AJAX
+            fetch('/api/produtos')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'sucesso' && data.produtos && data.produtos.length > 0) {
+                        produtosDisponiveis = data.produtos.map(p => ({
+                            id: p.id_prod,
+                            nome: p.nome_prod,
+                            valor: parseFloat(p.valor)
+                        }));
+                        console.log('✅ Produtos carregados via AJAX:', produtosDisponiveis.length);
+                    } else {
+                        console.error('❌ Nenhum produto encontrado');
+                    }
+                })
+                .catch(err => console.error('❌ Erro ao carregar produtos:', err));
+        } else {
+            console.log('✅ Produtos carregados do template:', produtosDisponiveis.length);
+        }
 
         // Formatação de telefone
         document.getElementById('customerPhone').addEventListener('input', function(e) {
@@ -783,15 +868,26 @@
         });
 
         function addProductField() {
-            // Verificar se há produtos disponíveis
+            console.log('� [CLICK] Botão clicado! produtosDisponiveis:', produtosDisponiveis);
+            
+            // VERIFICAÇÃO CRÍTICA: Tem produtos?
             if (!produtosDisponiveis || produtosDisponiveis.length === 0) {
-                alert('❌ Nenhum produto cadastrado no banco de dados. Por favor, cadastre produtos primeiro.');
-                console.error('produtosDisponiveis:', produtosDisponiveis);
+                console.error('❌ Nenhum produto disponível!');
+                alert('❌ Nenhum produto disponível!\n\nPor favor, verifique:\n1. Há produtos cadastrados?\n2. Os produtos estão marcados como "Ativo"?\n3. Atualizar página com Ctrl+F5');
                 return;
             }
 
             productCounter++;
+            console.log('✅ Criando campo de produto #' + productCounter);
+            
             const productsList = document.getElementById('productsList');
+            
+            // Remover estado vazio se existir
+            const emptyState = document.getElementById('emptyProductsState');
+            if (emptyState) {
+                emptyState.remove();
+                console.log('   → Removido estado vazio');
+            }
             
             const productItem = document.createElement('div');
             productItem.className = 'product-item';
@@ -799,7 +895,7 @@
             
             // Gerar opções do select de produtos
             const productOptions = produtosDisponiveis.map(p => 
-                `<option value="${p.id}" data-price="${p.valor}">${p.nome} - R$ ${p.valor.toFixed(2).replace('.', ',')}</option>`
+                `<option value="${p.id}" data-price="${p.valor}">${p.nome} - R$ ${parseFloat(p.valor).toFixed(2).replace('.', ',')}</option>`
             ).join('');
             
             productItem.innerHTML = `
@@ -1028,32 +1124,63 @@
             updateQRCode(totalAmount);
         }
 
+        // ⚠️ CONFIGURAÇÃO: Chave PIX do recebedor
+        const CHAVE_PIX = '05566941478'; // Altere para sua chave PIX (CPF, CNPJ, email ou telefone)
+        const NOME_BENEFICIARIO = 'WILLIAMS RODRIGUES VIEIRA SILVA'; // Altere para seu nome/razão social
+
+        function gerarQRCodePIX(valor) {
+            // Valores para gerar o QR Code PIX (formato Brcode)
+            // Formato simplificado: 00020126580014br.gov.bcb.brcode010521.0.0|chave_pix|...
+            // Para um sistema básico, usaremos a biblioteca QRCode com os dados
+            
+            const pixData = {
+                chave: CHAVE_PIX,
+                nome: NOME_BENEFICIARIO,
+                valor: valor.toFixed(2)
+            };
+            
+            // Cópia e Cola básica (útil para transferência manual)
+            const copiaECola = `00020126580014br.gov.bcb.brcode01051.0.0|${CHAVE_PIX}|52040000530398654061${valor.toFixed(2).padStart(10, '0')}5303986540610|6009Sao Paulo62410503***63041D3D`;
+            
+            return {
+                copiaECola: copiaECola,
+                pixData: pixData
+            };
+        }
+
         function updateQRCode(valor) {
             const qrcodeDiv = document.getElementById('qrcode');
+            const qrcodeContainer = document.getElementById('qrcodeContainer');
+            const pixKeyCopyPaste = document.getElementById('pixKeyCopyPaste');
+            
             qrcodeDiv.innerHTML = '';
 
             if (valor > 0) {
-                const qrValue = `PIX: R$ ${valor.toFixed(2)}`;
+                const pixInfo = gerarQRCodePIX(valor);
+                
+                // Mostrar container do QR Code
+                qrcodeContainer.style.display = 'block';
+                
+                // Gerar QR Code com dados simples
+                const qrText = `https://www.bcb.gov.br/pix?chave=${CHAVE_PIX}&valor=${valor.toFixed(2)}&nome=${NOME_BENEFICIARIO}`;
                 
                 new QRCode(qrcodeDiv, {
-                    text: qrValue,
+                    text: qrText,
                     width: 200,
                     height: 200,
                     colorDark: "#2d3748",
                     colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
                 });
+                
+                // Exibir chave PIX para cópia e cola
+                pixKeyCopyPaste.value = CHAVE_PIX;
             } else {
-                qrcodeDiv.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📱</div>
-                        <div class="empty-state-text">QR Code será gerado<br>após adicionar produtos</div>
-                    </div>
-                `;
+                qrcodeContainer.style.display = 'none';
             }
         }
 
-        document.getElementById('checkoutBtn').addEventListener('click', async function(e) {
+        document.getElementById('checkoutBtn')?.addEventListener('click', async function(e) {
             e.preventDefault();
             
             if (carrinho.length === 0) {
@@ -1087,7 +1214,12 @@
                         id_cliente: document.getElementById('customerSelect').value,
                         nome_cliente: customerInfo.nome,
                         telefone_cliente: customerInfo.telefone,
-                        numero_mesa: document.getElementById('tableNumber').value || null
+                        numero_mesa: document.getElementById('tableNumber').value || null,
+                        endereco: document.getElementById('customerAddress').value || '',
+                        bairro: document.getElementById('customerBairro').value || '',
+                        ponto_referencia: document.getElementById('customerReferencia').value || '',
+                        form_pgmto: document.getElementById('form_pgmto').value || '',
+                        tipo_consumo: document.getElementById('tipo_consumo').value || ''
                     })
                 });
 
@@ -1125,7 +1257,7 @@
         });
 
         // Event listener para botão de enviar via WhatsApp
-        document.getElementById('whatsappBtn').addEventListener('click', async function(e) {
+        document.getElementById('whatsappBtn')?.addEventListener('click', async function(e) {
             e.preventDefault();
             
             if (carrinho.length === 0) {
@@ -1152,7 +1284,12 @@
                         id_cliente: document.getElementById('customerSelect').value,
                         nome_cliente: customerInfo.nome,
                         telefone_cliente: customerInfo.telefone,
-                        numero_mesa: document.getElementById('tableNumber').value || null
+                        numero_mesa: document.getElementById('tableNumber').value || null,
+                        endereco: document.getElementById('customerAddress').value || '',
+                        bairro: document.getElementById('customerBairro').value || '',
+                        ponto_referencia: document.getElementById('customerReferencia').value || '',
+                        form_pgmto: document.getElementById('form_pgmto').value || '',
+                        tipo_consumo: document.getElementById('tipo_consumo').value || ''
                     })
                 });
 
@@ -1169,6 +1306,11 @@
                 let mensagem = `*NOVO PEDIDO #${id_pedido}*\n\n`;
                 mensagem += `👤 *Cliente:* ${customerInfo.nome}\n`;
                 mensagem += `📱 *Telefone:* ${customerInfo.telefone}\n`;
+                mensagem += `🏠 *Endereço:* ${document.getElementById('customerAddress').value || 'N/A'}\n`;
+                mensagem += `🏘️ *Bairro:* ${document.getElementById('customerBairro').value || 'N/A'}\n`;
+                mensagem += `🗺️ *Ponto de Referência:* ${document.getElementById('customerReferencia').value || 'N/A'}\n`;
+                mensagem += `💳 *Forma de Pagamento:* ${document.getElementById('form_pgmto').value || 'N/A'}\n`;
+                mensagem += `🍽️ *Tipo de Consumo:* ${document.getElementById('tipo_consumo').value || 'N/A'}\n`;
                 
                 // Incluindo número da mesa se informado
                 const mesaNumber = document.getElementById('tableNumber').value;
@@ -1230,13 +1372,13 @@
                 } else {
                     alert(`⚠️ Erro ao gerar link: ${whatsappResult.mensagem}`);
                 }
-            } catch (error) {
+            } catch (error) {   
                 console.error('Erro:', error);
                 alert('❌ Erro ao processar WhatsApp. Tente novamente.');
             }
         });
 
-        document.getElementById('btnAddProduct').addEventListener('click', addProductField);
+        document.getElementById('btnAddProduct')?.addEventListener('click', addProductField);
 
         // Handler para botão Salvar Pedido (se não tiver evento listener)
         if (document.getElementById('salvar_pedido')) {
@@ -1298,11 +1440,19 @@
                     } else {
                         alert(`❌ Erro: ${resultado.mensagem}`);
                     }
+                    
                 } catch (error) {
                     console.error('Erro:', error);
                     alert('❌ Erro ao salvar pedido. Tente novamente.');
                 }
             });
+        }
+
+        // Debug: Verificar se produtos foram carregados
+        if (produtosDisponiveis.length === 0) {
+            console.warn('⚠️ Nenhum produto foi carregado do banco de dados');
+        } else {
+            console.log('✅ Produtos carregados:', produtosDisponiveis.length);
         }
 
         updateCartDisplay();
@@ -1320,20 +1470,27 @@
             document.getElementById('productsList').appendChild(emptyState);
         }
         
-        // Remover estado vazio quando adicionar produto
-        const originalAddProductField = addProductField;
-        addProductField = function() {
-            const emptyState = document.getElementById('emptyProductsState');
-            if (emptyState) {
-                emptyState.remove();
-            }
-            originalAddProductField();
-        };
+        // Verificação inicial: Se não há produtos, mostrar aviso
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (produtosDisponiveis.length === 0) {
+                    console.error('❌ ALERTA: Nenhum produto foi carregado!');
+                    console.error('Verifique se a rota /pedidos está retornando os produtos do banco de dados');
+                }
+            }, 500);
+        });
         
         
     /** * Criar uma função para gerar o pedido para impressão * */    
         function gerarPedidoParaImpressao(saveResult, customerInfo, carrinho) {
     const printWindow = window.open('', '_blank', 'width=350,height=600');
+
+    // Obter valores dos campos do formulário
+    const endereco = document.getElementById('customerAddress')?.value || '';
+    const bairro = document.getElementById('customerBairro')?.value || '';
+    const ponto_referencia = document.getElementById('customerReferencia')?.value || '';
+    const forma_pagamento = document.getElementById('form_pgmto')?.value || '';
+    const tipo_consumo = document.getElementById('tipo_consumo')?.value || '';
 
     printWindow.document.write(`
         <html>
@@ -1394,10 +1551,17 @@
         </head>
         <body>
 
+            <h5>Lanchonete Delicia</h5>
+            <h5>📞 (11) 99999-9999</h5>
             <h1>🧾 PEDIDO</h1>
 
             <p><strong>Nº:</strong> ${saveResult.id_pedido}</p>
             <p><strong>Cliente:</strong> ${customerInfo.nome}</p>
+            <p><strong>Endereço:</strong> ${endereco || 'N/A'}</p>
+            <p><strong>Bairro:</strong> ${bairro || 'N/A'}</p>
+            <p><strong>Ponto Referência:</strong> ${ponto_referencia || 'N/A'}</p>
+            <p><strong>Forma de Pagamento:</strong> ${forma_pagamento || 'N/A'}</p>
+            <p><strong>Tipo de Consumo:</strong> ${tipo_consumo || 'N/A'}</p>
             <p><strong>Telefone:</strong> ${customerInfo.telefone}</p>
             <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
 
@@ -1459,7 +1623,7 @@
 }
 
 // Salvando no banco de dados e imprimindo
-document.getElementById('printBtn').addEventListener('click', async function () {
+document.getElementById('printBtn')?.addEventListener('click', async function () {
 
     if (carrinho.length === 0) {
         alert('🛒 Carrinho vazio!');
@@ -1481,7 +1645,12 @@ document.getElementById('printBtn').addEventListener('click', async function () 
                 id_cliente: document.getElementById('customerSelect').value,
                 nome_cliente: customerInfo.nome,
                 telefone_cliente: customerInfo.telefone,
-                numero_mesa: document.getElementById('tableNumber')?.value || null
+                numero_mesa: document.getElementById('tableNumber')?.value || null,
+                endereco: document.getElementById('customerAddress').value || '',
+                bairro: document.getElementById('customerBairro').value || '',
+                ponto_referencia: document.getElementById('customerReferencia').value || '',
+                form_pgmto: document.getElementById('form_pgmto').value || '',
+                tipo_consumo: document.getElementById('tipo_consumo').value || ''
             })
         });
 
@@ -1523,7 +1692,59 @@ document.getElementById('printBtn').addEventListener('click', async function () 
     }
 });
 
+// ============================================
+// 🔧 INICIALIZADOR - GARANTIR QUE TUDO FUNCIONA
+// ============================================
+console.log('🚀 Inicializando Sistema de Pedidos...');
 
+// Aguardar DOM estar pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSystem);
+} else {
+    initializeSystem();
+}
+
+function initializeSystem() {
+    console.log('📋 DOM carregado. Verificando elementos...');
+    
+    // 1. Verificar se botão existe
+    const btnAddProduct = document.getElementById('btnAddProduct');
+    if (!btnAddProduct) {
+        console.error('❌ ERRO CRÍTICO: Botão btnAddProduct não encontrado!');
+        return;
+    }
+    console.log('✅ Botão encontrado:', btnAddProduct);
+    
+    // 2. Verificar se há event listener (pode já estar registrado)
+    // Vamos registrar novamente para garantir
+    btnAddProduct.addEventListener('click', function(e) {
+        console.log('🔷 [CLIQUE DETECTADO] Botão clicado!');
+        e.preventDefault();
+        e.stopPropagation();
+        addProductField();
+    });
+    console.log('✅ Event listener registrado com sucesso');
+    
+    // 3. Verificar produtos
+    setTimeout(() => {
+        console.log('📦 Produtos disponíveis:', produtosDisponiveis.length);
+        if (produtosDisponiveis.length === 0) {
+            console.warn('⚠️ AVISO: Nenhum produto carregado do template');
+            console.log('   Tentando carregar via AJAX...');
+        } else {
+            console.log('✅ Produtos carregados:', produtosDisponiveis);
+        }
+    }, 500);
+    
+    // 4. Teste: permitir clicar no botão pelo console
+    window.testarAddProduct = function() {
+        console.log('🧪 Teste manual: chamando addProductField()');
+        addProductField();
+    };
+    console.log('💡 Dica: Digite no console: testarAddProduct()');
+    
+    console.log('🎉 Sistema inicializado com sucesso!');
+}
 
     </script>
 

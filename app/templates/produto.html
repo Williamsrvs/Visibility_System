@@ -56,12 +56,17 @@
     <label for="subgrupo">Subgrupo</label>
     <select id="subgrupo" name="subgrupo" required class="form-control">
     <option value="">Selecione um subgrupo</option>
-    <option value="Decoração">Decoração (*)</option>
-    <option value="Locação Cadeiras">Locação Cadeiras</option>
-    <option value="Locação Mesas">Locação Mesas</option>
-    <option value="Locação Pratos e Utensilios">Locação Pratos e utensilios</option>
-    <option value="Buffet">Buffet</option>
-    <option value="Tampos Madeirite">Tampos Madeirite</option>
+    <option value="Combo">Combo (*)</option>
+    <option value="Hamburguer">Hamburguer</option>
+    <option value="Sanduiche">Sanduiche</option>
+    <option value="Sanduiche Natural">Sanduiche Natural</option>
+    <option value="Bebidas">Bebidas</option>
+    <option value="Prato da Casa">Prato da Casa</option>
+    <option value="Salgados">Salgados</option>    
+    <option value="Pizzas e Massas">Pizzas e Massas</option>    
+    <option value="Hot Dog">Hot Dog</option>    
+    <option value="Pasteis">Pasteis</option>
+
 
     </select>
     </div>
@@ -120,6 +125,15 @@
                 <button onclick="editarProduto({{ p.id_prod }})" class="btn-action edit">Editar</button>
                 <button onclick="if(confirm('Tem certeza que deseja excluir este produto?')) deletarProduto({{ p.id_prod }})" class="btn-action delete">Excluir</button>
                 </div>
+                <div class="visibility-control" style="margin-top: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">
+                        <input type="checkbox" id="visible{{ p.id_prod }}" 
+                            {% if p.ativo == 1 %}checked{% endif %}
+                            onchange="toggleVisibilidade({{ p.id_prod }}, this.checked)"
+                            style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+                        <span>{% if p.ativo == 1 %}✅ Visível no índice{% else %}👁️‍🗨️ Oculto do índice{% endif %}</span>
+                    </label>
+                </div>
             </div>
 
             <!-- Modal de edição -->
@@ -145,12 +159,16 @@
             <label for="edit_subgrupo{{ p.id_prod }}">Subgrupo:</label>
             <select id="edit_subgrupo{{ p.id_prod }}" name="subgrupo" required class="form-control">
             <option value="">Selecione um subgrupo</option>
-            <option value="Decoração" {% if p.subgrupo == 'Decoração' %}selected{% endif %}>Decoração</option>
-            <option value="Locação Cadeiras" {% if p.subgrupo == 'Locação Cadeiras' %}selected{% endif %}>Locação Cadeiras</option>
-            <option value="Locação Mesas" {% if p.subgrupo == 'Locação Mesas' %}selected{% endif %}>Locação Mesas</option>
-            <option value="Buffet" {% if p.subgrupo == 'Buffet' %}selected{% endif %}>Buffet</option>
-            <option value="Tampos Madeirite" {% if p.subgrupo == 'Tampos Madeirite' %}selected{% endif %}>Tampos Madeirite</option>
-            
+            <option value="Combo" {% if p.subgrupo == 'Combo' %}selected{% endif %}>Combo</option>
+            <option value="Hamburguer" {% if p.subgrupo == 'Hamburguer' %}selected{% endif %}>Hamburguer</option>
+            <option value="Sanduiche" {% if p.subgrupo == 'Sanduiche' %}selected{% endif %}>Sanduiche</option>
+            <option value="Sanduiche Natural" {% if p.subgrupo == 'Sanduiche Natural' %}selected{% endif %}>Sanduiche Natural</option>
+            <option value="Bebidas" {% if p.subgrupo == 'Bebidas' %}selected{% endif %}>Bebidas</option>
+            <option value="Prato da Casa" {% if p.subgrupo == 'Prato da Casa' %}selected{% endif %}>Prato da Casa</option>
+            <option value="Salgados" {% if p.subgrupo == 'Salgados' %}selected{% endif %}>Salgados</option>
+            <option value="Pizzas e Massas" {% if p.subgrupo == 'Pizzas e Massas' %}selected{% endif %}>Pizzas e Massas</option>
+            <option value="Hot Dog" {% if p.subgrupo == 'Hot Dog' %}selected{% endif %}>Hot Dog</option>
+            <option value="Pasteis" {% if p.subgrupo == 'Pasteis' %}selected{% endif %}>Pasteis</option>
         
         </select>
         </div>
@@ -272,6 +290,40 @@
     .catch(error => {
         console.error('Erro:', error);
         alert('Erro ao excluir produto');
+    });
+    }
+
+    function toggleVisibilidade(id, visivel) {
+    const status = visivel ? 1 : 0;
+    const mensagem = visivel ? 'Produto agora está visível' : 'Produto oculto do índice';
+    
+    fetch(`/produto/${id}/visibilidade`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ativo: status })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(mensagem);
+            // Atualizar o label
+            const checkbox = document.getElementById(`visible${id}`);
+            const label = checkbox.nextElementSibling;
+            if (visivel) {
+                label.textContent = '✅ Visível no índice';
+            } else {
+                label.textContent = '👁️‍🗨️ Oculto do índice';
+            }
+        } else {
+            alert('Erro ao atualizar visibilidade do produto');
+            checkbox.checked = !checkbox.checked;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar visibilidade: ' + error.message);
+        document.getElementById(`visible${id}`).checked = !document.getElementById(`visible${id}`).checked;
     });
     }
 </script>

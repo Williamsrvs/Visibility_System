@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>🧪 Debug - Botão Adicionar Produtos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .log-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+            border: 2px solid #667eea;
+        }
+        .log-line {
+            padding: 3px 0;
+            word-break: break-all;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .warning { color: #ffdd00; }
+        .info { color: #88ccff; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .status-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .status-ok { background: #d4edda; border-left-color: #28a745; }
+        .status-error { background: #f8d7da; border-left-color: #dc3545; }
+        .status-warning { background: #fff3cd; border-left-color: #ffc107; }
+        code {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .instruction {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Debug - Botão Adicionar Produtos</h1>
+        
+        <div class="card">
+            <h2>📋 Status do Sistema</h2>
+            <div id="statusContainer"></div>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Executar Testes</h2>
+            <button onclick="testarBotao()">1️⃣ Testar Botão</button>
+            <button onclick="testarProdutos()">2️⃣ Verificar Produtos</button>
+            <button onclick="testarAPI()">3️⃣ Testar API /api/produtos</button>
+            <button onclick="testarPagina()">4️⃣ Testar Página /pedidos</button>
+            <button onclick="limparLogs()">🧹 Limpar Logs</button>
+        </div>
+
+        <div class="card">
+            <h2>📊 Logs do Teste</h2>
+            <div class="log-box" id="logBox"></div>
+        </div>
+
+        <div class="card">
+            <h2>📝 Instruções</h2>
+            <div class="instruction">
+                <strong>Passo 1:</strong> Clique nos botões acima para testar cada componente
+                <br><strong>Passo 2:</strong> Verifique os logs abaixo para encontrar erros
+                <br><strong>Passo 3:</strong> Se tudo OK, vá para <code>http://localhost:5000/pedidos</code> e teste
+                <br><strong>Passo 4:</strong> Abra DevTools (F12) → Console e clique no botão "+ Adicionar Produto"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        function addLog(mensagem, tipo = 'info') {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const logEntry = { mensagem, tipo, timestamp };
+            logs.push(logEntry);
+            atualizarLogs();
+        }
+
+        function atualizarLogs() {
+            const logBox = document.getElementById('logBox');
+            logBox.innerHTML = logs.map((log, index) => {
+                let classe = 'info';
+                let emoji = 'ℹ️';
+                
+                if (log.tipo === 'success') {
+                    classe = 'success';
+                    emoji = '✅';
+                } else if (log.tipo === 'error') {
+                    classe = 'error';
+                    emoji = '❌';
+                } else if (log.tipo === 'warning') {
+                    classe = 'warning';
+                    emoji = '⚠️';
+                }
+                
+                return `<div class="log-line ${classe}">${emoji} [${log.timestamp}] ${log.mensagem}</div>`;
+            }).join('');
+            
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function limparLogs() {
+            logs = [];
+            atualizarLogs();
+            addLog('Logs limpos', 'info');
+        }
+
+        async function testarBotao() {
+            addLog('🔷 Iniciando teste do botão...', 'info');
+            
+            try {
+                // Ir para a página
+                addLog('Abrindo página /pedidos...', 'info');
+                window.open('http://localhost:5000/pedidos', '_blank');
+                addLog('Página aberta! Instruções:', 'success');
+                addLog('1. Abra DevTools (F12)', 'info');
+                addLog('2. Vá na aba "Console"', 'info');
+                addLog('3. Clique no botão "+ Adicionar Produto"', 'info');
+                addLog('4. Verifique o console para mensagens', 'info');
+            } catch (error) {
+                addLog(`Erro ao testar: ${error.message}`, 'error');
+            }
+        }
+
+        async function testarProdutos() {
+            addLog('📦 Testando carregamento de produtos...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/produtos');
+                
+                if (!response.ok) {
+                    addLog(`Erro HTTP ${response.status}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'sucesso') {
+                    addLog(`✅ API respondeu com sucesso!`, 'success');
+                    addLog(`Total de produtos: ${data.total}`, 'success');
+                    
+                    if (data.total === 0) {
+                        addLog('⚠️ Nenhum produto encontrado!', 'warning');
+                        addLog('Solução: Ativar produtos no sistema', 'info');
+                    } else {
+                        addLog(`Primeiros produtos:`, 'info');
+                        data.productos.slice(0, 3).forEach(p => {
+                            addLog(`  - ${p.nome_prod || p.nome}: R$ ${p.valor}`, 'success');
+                        });
+                    }
+                } else {
+                    addLog(`Erro na resposta: ${data.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Erro ao conectar: ${error.message}`, 'error');
+                addLog('Verifique se Flask está rodando em http://localhost:5000', 'warning');
+            }
+        }
+
+        async function testarAPI() {
+            addLog('🔌 Testando endpoint /api/produtos...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/produtos');
+                const data = await response.json();
+                
+                addLog(`Status: ${data.status}`, data.status === 'sucesso' ? 'success' : 'error');
+                addLog(`Total: ${data.total}`, data.total > 0 ? 'success' : 'warning');
+                
+                if (data.productos && data.productos.length > 0) {
+                    addLog('Resposta JSON completa:', 'success');
+                    addLog(JSON.stringify(data, null, 2), 'info');
+                }
+            } catch (error) {
+                addLog(`Erro: ${error.message}`, 'error');
+            }
+        }
+
+        async function testarPagina() {
+            addLog('📄 Testando página /pedidos...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5000/pedidos');
+                
+                if (!response.ok) {
+                    addLog(`Erro HTTP ${response.status}`, 'error');
+                    return;
+                }
+                
+                const html = await response.text();
+                
+                if (html.includes('btn-add-product')) {
+                    addLog('✅ Botão encontrado na página', 'success');
+                } else {
+                    addLog('❌ Botão NÃO encontrado', 'error');
+                }
+                
+                if (html.includes('produtosDisponiveis')) {
+                    addLog('✅ Script de produtos encontrado', 'success');
+                } else {
+                    addLog('❌ Script NÃO encontrado', 'error');
+                }
+                
+                if (html.includes('addEventListener')) {
+                    addLog('✅ Event listeners registrados', 'success');
+                } else {
+                    addLog('⚠️ Event listeners não encontrados', 'warning');
+                }
+                
+                addLog('Página /pedidos OK!', 'success');
+            } catch (error) {
+                addLog(`Erro: ${error.message}`, 'error');
+            }
+        }
+
+        // Testar tudo automaticamente ao carregar
+        window.addEventListener('load', function() {
+            addLog('🚀 Página de teste carregada', 'success');
+            addLog('Clique nos botões para executar testes', 'info');
+        });
+    </script>
+</body>
+</html>

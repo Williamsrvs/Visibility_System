@@ -73,7 +73,7 @@ def index():
         cur.execute("SELECT * FROM tbl_prod WHERE ativo = 1 ORDER BY created_at DESC")
         produtos = cur.fetchall()
         
-        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod WHERE ativo = 1 ORDER BY subgrupo ASC")
+        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod ORDER BY subgrupo ASC")
         subgrupos_raw = cur.fetchall()
         subgrupos = [{"subgrupo": s[0]} for s in subgrupos_raw] if subgrupos_raw else []
         
@@ -1214,7 +1214,7 @@ def grupo(subgrupo):
         produtos = cur.fetchall()
         
         # Buscar todos os subgrupos para o filtro
-        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod WHERE ativo = 1 ORDER BY subgrupo ASC")
+        cur.execute("SELECT DISTINCT subgrupo FROM tbl_prod ORDER BY subgrupo ASC")
         subgrupos_raw = cur.fetchall()
         subgrupos = [{"subgrupo": s['subgrupo']} for s in subgrupos_raw] if subgrupos_raw else []
 

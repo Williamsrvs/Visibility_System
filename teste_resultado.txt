@@ -1,0 +1,17 @@
+
+=== TESTE 1: API de Produtos ===
+OK: Retornou 5 produtos
+
+=== TESTE 2: Salvar Pedido ===
+OK: Pedido #56 salvo
+    Valor: R$ 4.0
+    Campos: endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo [OK]
+
+=== TESTE 3: Estrutura do Frontend ===
+  Button btnAddProduct: OK
+  QRCode.js: OK
+  updateQRCode: OK
+  PIX Key: OK
+
+=== RESUMO ===
+Todos os testes completados!

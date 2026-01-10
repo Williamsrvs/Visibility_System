@@ -85,6 +85,13 @@ CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
     nome_cliente VARCHAR(100),
     numero_mesa INT null,
     telefone VARCHAR(100),
+    endereco TEXT,
+    bairro VARCHAR(50),
+    ponto_referencia TEXT,
+    form_pgmto enum('dinheiro', 'cartao', 'pix') NOT NULL,
+    tipo_consumo enum('No Local', 'Retira', 'Delivery') NOT NULL,
+
+
     FOREIGN KEY (id_pedido) REFERENCES tbl_pedidos(id_pedido),
     FOREIGN KEY (id_prod) REFERENCES tbl_prod(id_prod),
     FOREIGN KEY (id_cliente) REFERENCES tbl_cliente(id_cliente)
