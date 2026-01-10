@@ -642,7 +642,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-content">
-            <h1>🛍️ Sistema de Pedidos</h1>
+            <h1>🛍️ Sistema de Pedidos Clientes</h1>
             <button class="btn-voltar" onclick="window.location.href='/'">
                 🏠 Voltar ao Início
             </button>
@@ -659,7 +659,7 @@
                 <div class="customer-grid">
                     <div class="form-group full-width">
                         <label>Nome Cliente</label>
-                        <input type="text" id="customerName" placeholder="Digite o nome completo" required>
+                        <input type="text" id="customerName" name="nome_cliente" placeholder="Digite o nome completo" required>
                     </div>
 
                     <div class="form-group full-width">
@@ -777,6 +777,11 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     
     <script>
+        // DEBUG: Verificar se estamos em ambiente de debug
+        console.log('🚀 Script iniciando...');
+        console.log('📊 Dados do Jinja2:');
+        console.log('   - produtos: ', typeof(produtos), '{{ produtos|length }}');
+        
         let carrinho = [];
         let productCounter = 0;
         
@@ -791,7 +796,11 @@
             {% endfor %}
         ];
 
-        console.log('📦 Produtos carregados do servidor:', produtosDisponiveis.length, produtosDisponiveis);
+        console.log('📦 Produtos carregados do servidor - Total:', produtosDisponiveis.length);
+        console.log('📦 Array completo:', produtosDisponiveis);
+        if (produtosDisponiveis.length === 0) {
+            console.warn('⚠️ ATENÇÃO: Nenhum produto foi carregado! Verifique se há dados no banco de dados.');
+        }
 
         // Formatação de telefone
         document.getElementById('customerPhone').addEventListener('input', function(e) {
@@ -913,19 +922,18 @@
         }
 
         function validateCustomerInfo() {
-            const customerSelect = document.getElementById('customerSelect');
+            const customerName = document.getElementById('customerName');
             const customerPhone = document.getElementById('customerPhone');
             
-            const customerId = customerSelect.value;
-            const customerName = customerSelect.options[customerSelect.selectedIndex].text;
+            const nome = customerName.value.trim();
+            const phone = customerPhone.value.trim();
             
-            if (!customerId || customerId === '') {
-                alert('⚠️ Por favor, selecione um cliente.');
-                customerSelect.focus();
+            if (!nome || nome === '') {
+                alert('⚠️ Por favor, digite um nome de cliente.');
+                customerName.focus();
                 return false;
             }
             
-            const phone = customerPhone.value.trim();
             if (!phone || phone === '') {
                 alert('⚠️ Por favor, digite um telefone válido.');
                 customerPhone.focus();
@@ -936,8 +944,8 @@
             const phoneClean = phone.replace(/\D/g, '');
             
             return { 
-                id: customerId, 
-                nome: customerName, 
+                id: 0, // ID gerado automaticamente no banco
+                nome: nome, 
                 telefone: phone,
                 telefoneClean: phoneClean
             };
@@ -1057,10 +1065,6 @@
             updateQRCode(totalAmount);
         }
 
-        // ⚠️ CONFIGURAÇÃO: Chave PIX do recebedor
-        const CHAVE_PIX = '05566941478'; // Altere para sua chave PIX (CPF, CNPJ, email ou telefone)
-        const NOME_BENEFICIARIO = 'WILLIAMS RODRIGUES VIEIRA SILVA'; // Altere para seu nome/razão social
-
         function gerarQRCodePIX(valor) {
             // Valores para gerar o QR Code PIX (formato Brcode)
             // Formato simplificado: 00020126580014br.gov.bcb.brcode010521.0.0|chave_pix|...
@@ -1085,29 +1089,63 @@
             const qrcodeDiv = document.getElementById('qrcode');
             const qrcodeContainer = document.getElementById('qrcodeContainer');
             const pixKeyCopyPaste = document.getElementById('pixKeyCopyPaste');
-            
+
             qrcodeDiv.innerHTML = '';
 
             if (valor > 0) {
                 const pixInfo = gerarQRCodePIX(valor);
-                
+
                 // Mostrar container do QR Code
                 qrcodeContainer.style.display = 'block';
-                
+
                 // Gerar QR Code com dados simples
                 const qrText = `https://www.bcb.gov.br/pix?chave=${CHAVE_PIX}&valor=${valor.toFixed(2)}&nome=${NOME_BENEFICIARIO}`;
-                
-                new QRCode(qrcodeDiv, {
-                    text: qrText,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#2d3748",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                
+
+                try {
+                    if (typeof QRCode !== 'undefined') {
+                        // Compatibilidade com diferentes bibliotecas qrcode.js
+                        if (QRCode.CorrectLevel && typeof QRCode === 'function') {
+                            new QRCode(qrcodeDiv, {
+                                text: qrText,
+                                width: 200,
+                                height: 200,
+                                colorDark: "#2d3748",
+                                colorLight: "#ffffff",
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                        } else if (typeof QRCode.toCanvas === 'function') {
+                            // Biblioteca 'qrcode' (npm) expõe toCanvas
+                            QRCode.toCanvas(qrcodeDiv, qrText, {
+                                width: 200,
+                                color: { dark: '#2d3748', light: '#ffffff' }
+                            }, function(err) {
+                                if (err) console.error('Erro ao gerar QR (toCanvas):', err);
+                            });
+                        } else if (typeof QRCode.toDataURL === 'function') {
+                            QRCode.toDataURL(qrText, { width: 200 }, function(err, url) {
+                                if (err) {
+                                    console.error('Erro ao gerar QR (toDataURL):', err);
+                                } else {
+                                    const img = new Image();
+                                    img.src = url;
+                                    qrcodeDiv.appendChild(img);
+                                }
+                            });
+                        } else {
+                            console.warn('Biblioteca QRCode presente, API inesperada. Exibindo texto.');
+                            qrcodeDiv.textContent = qrText;
+                        }
+                    } else {
+                        console.warn('Biblioteca QRCode não encontrada. Exibindo texto.');
+                        qrcodeDiv.textContent = qrText;
+                    }
+                } catch (err) {
+                    console.error('Erro gerando QRCode:', err);
+                    qrcodeDiv.textContent = qrText;
+                }
+
                 // Exibir chave PIX para cópia e cola
-                pixKeyCopyPaste.value = CHAVE_PIX;
+                if (pixKeyCopyPaste) pixKeyCopyPaste.value = CHAVE_PIX;
             } else {
                 qrcodeContainer.style.display = 'none';
             }
@@ -1144,7 +1182,6 @@
                     },
                     body: JSON.stringify({
                         carrinho: carrinho,
-                        id_cliente: document.getElementById('customerSelect').value,
                         nome_cliente: customerInfo.nome,
                         telefone_cliente: customerInfo.telefone,
                         numero_mesa: document.getElementById('tableNumber').value || null,
@@ -1166,7 +1203,7 @@
                     updateCartDisplay();
                     
                     // Resetar formulário
-                    document.getElementById('customerSelect').value = '';
+                    document.getElementById('customerName').value = '';
                     document.getElementById('customerPhone').value = '';
                     document.getElementById('productsList').innerHTML = '';
                     
@@ -1214,7 +1251,6 @@
                     },
                     body: JSON.stringify({
                         carrinho: carrinho,
-                        id_cliente: document.getElementById('customerSelect').value,
                         nome_cliente: customerInfo.nome,
                         telefone_cliente: customerInfo.telefone,
                         numero_mesa: document.getElementById('tableNumber').value || null,
@@ -1288,7 +1324,7 @@
                     updateCartDisplay();
                     
                     // Resetar formulário
-                    document.getElementById('customerSelect').value = '';
+                    document.getElementById('customerName').value = '';
                     document.getElementById('customerPhone').value = '';
                     document.getElementById('productsList').innerHTML = '';
                     
@@ -1354,7 +1390,6 @@
                         },
                         body: JSON.stringify({
                             carrinho: carrinho,
-                            id_cliente: document.getElementById('customerSelect').value,
                             nome_cliente: customerInfo.nome,
                             telefone_cliente: customerInfo.telefone
                         })
@@ -1368,7 +1403,7 @@
                         carrinho = [];
                         updateCartDisplay();
                         
-                        document.getElementById('customerSelect').value = '';
+                        document.getElementById('customerName').value = '';
                         document.getElementById('customerPhone').value = '';
                         document.getElementById('productsList').innerHTML = '';
                         
@@ -1586,7 +1621,6 @@ document.getElementById('printBtn')?.addEventListener('click', async function ()
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 carrinho: carrinho,
-                id_cliente: document.getElementById('customerSelect').value,
                 nome_cliente: customerInfo.nome,
                 telefone_cliente: customerInfo.telefone,
                 numero_mesa: document.getElementById('tableNumber')?.value || null,
@@ -1639,7 +1673,7 @@ document.getElementById('printBtn')?.addEventListener('click', async function ()
 // ============================================
 // 🔧 INICIALIZADOR - GARANTIR QUE TUDO FUNCIONA
 // ============================================
-console.log('🚀 Inicializando Sistema de Pedidos...');
+console.log('🚀 Inicializando Sistema de Pedido...');
 
 // Aguardar DOM estar pronto
 if (document.readyState === 'loading') {

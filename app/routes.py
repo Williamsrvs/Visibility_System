@@ -917,15 +917,43 @@ def salvar_pedido():
         ponto_referencia = dados.get('ponto_referencia', '')
         form_pgmto = dados.get('form_pgmto', '')
         tipo_consumo = dados.get('tipo_consumo', '')
-        
+
         if not carrinho:
             return jsonify({"status": "erro", "mensagem": "Carrinho vazio"}), 400
-        
-        if not id_cliente:
-            return jsonify({"status": "erro", "mensagem": "ID do cliente obrigatório"}), 400
-        
+
+        # Abrir conexão o mais cedo possível para permitir criar/consultar cliente
         conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
-        
+
+        # Se não enviaram id_cliente, tentar encontrar por telefone/nome ou criar novo cliente
+        if not id_cliente:
+            if nome_cliente and nome_cliente.strip() != '':
+                # Tentar correspondência por telefone primeiro quando disponível
+                encontrado = None
+                try:
+                    if telefone_cliente and telefone_cliente.strip() != '':
+                        cur.execute("SELECT id_cliente FROM tbl_cliente WHERE telefone = %s LIMIT 1", (telefone_cliente,))
+                        encontrado = cur.fetchone()
+                    # Se não encontrou por telefone, tentar por nome
+                    if not encontrado:
+                        cur.execute("SELECT id_cliente FROM tbl_cliente WHERE nome_cliente = %s LIMIT 1", (nome_cliente,))
+                        encontrado = cur.fetchone()
+
+                    if encontrado and encontrado.get('id_cliente'):
+                        id_cliente = encontrado.get('id_cliente')
+                    else:
+                        # Inserir novo cliente
+                        cur.execute("INSERT INTO tbl_cliente (nome_cliente, telefone) VALUES (%s, %s)", (nome_cliente, telefone_cliente))
+                        id_cliente = cur.lastrowid
+                        logging.info(f"✅ Cliente criado automaticamente: {id_cliente} - {nome_cliente}")
+                except Exception as e:
+                    logging.error(f"❌ Erro ao localizar/criar cliente: {e}")
+                    conn.rollback()
+                    return jsonify({"status": "erro", "mensagem": "Erro ao processar cliente"}), 500
+            else:
+                # Nem id nem nome foram informados
+                cur.close()
+                return jsonify({"status": "erro", "mensagem": "ID ou nome do cliente obrigatório"}), 400
+
         # Calcular valor total do pedido
         valor_total = sum(float(item.get('subtotal', 0)) for item in carrinho)
         
@@ -1314,25 +1342,32 @@ def grupo(subgrupo):
 
     return render_template('index.html', produtos=produtos, subgrupos=subgrupos, subgrupo_selecionado=subgrupo)
 
-@app.route('/pedidos_cliente', methods=['GET'])
+@app.route('/pedidos_cliente', methods=['GET', 'POST'])
 def pedidos_cliente():
-    conn = mysql.get_connection()
-    cur = conn.cursor(dictionary=True)
+    cur = None
     try:
-        # Buscar apenas produtos ativos (ativo = 1)
+        conn = mysql.get_connection()
+        cur = conn.cursor(dictionary=True)
+        
+        # ✅ Buscar apenas as colunas necessárias para o JavaScript
         cur.execute("SELECT id_prod, nome_prod, valor FROM tbl_prod WHERE ativo = 1 ORDER BY nome_prod ASC")
         produtos = cur.fetchall()
         
-        # Buscar clientes para dropdown
+        # ✅ Buscar clientes
         cur.execute("SELECT id_cliente, nome_cliente FROM tbl_cliente ORDER BY nome_cliente ASC")
         clientes = cur.fetchall()
         
+        print(f"✅ Produtos carregados: {len(produtos)}")
+        print(f"📦 Primeiro produto: {produtos[0] if produtos else 'Nenhum'}")
+        
         return render_template('pedidos_cliente.html', produtos=produtos, clientes=clientes)
     except Exception as e:
-        logging.error(f"❌ Erro ao carregar produtos para pedidos_cliente: {e}")
+        logging.error(f"❌ Erro ao buscar produtos para pedidos: {e}")
+        print(f"❌ ERRO: {e}")
         return render_template('pedidos_cliente.html', produtos=[], clientes=[])
     finally:
-        cur.close()
+        if cur:
+            cur.close()
 
 
 # Permite acesso por IP local da rede
