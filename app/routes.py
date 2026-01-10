@@ -1314,6 +1314,10 @@ def grupo(subgrupo):
 
     return render_template('index.html', produtos=produtos, subgrupos=subgrupos, subgrupo_selecionado=subgrupo)
 
+@app.route('/pedidos_cliente', methods=['GET'])
+def pedidos_cliente():
+    return render_template('pedidos_cliente.html')
+
 
 # Permite acesso por IP local da rede
 app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)
