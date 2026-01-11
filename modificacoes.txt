@@ -1,0 +1,6 @@
+# Removi o botão de Excluir do formulário de cadastramento de produtos:
+    Com esta ação, evita de excluir ou de bugar algum relatório dentro do banco de dados e mantém a integridade dos dados.
+
+Comando: 
+<button onclick="if(confirm('Tem certeza que deseja excluir este produto?')) deletarProduto({{ p.id_prod }})" class="btn-action delete">Excluir</button>
+------------------------------------------------------------------------------------

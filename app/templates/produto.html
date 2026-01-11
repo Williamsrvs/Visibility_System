@@ -123,7 +123,7 @@
                 </div>
                 <div class="actions">
                 <button onclick="editarProduto({{ p.id_prod }})" class="btn-action edit">Editar</button>
-                <button onclick="if(confirm('Tem certeza que deseja excluir este produto?')) deletarProduto({{ p.id_prod }})" class="btn-action delete">Excluir</button>
+                
                 </div>
                 <div class="visibility-control" style="margin-top: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
                     <label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">
@@ -131,7 +131,7 @@
                             {% if p.ativo == 1 %}checked{% endif %}
                             onchange="toggleVisibilidade({{ p.id_prod }}, this.checked)"
                             style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
-                        <span>{% if p.ativo == 1 %}✅ Visível no índice{% else %}👁️‍🗨️ Oculto do índice{% endif %}</span>
+                        <span>{% if p.ativo == 1 %}✅ Visível no índice{% else %}🚫 Oculto do índice{% endif %}</span>
                     </label>
                 </div>
             </div>
