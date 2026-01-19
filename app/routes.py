@@ -1088,7 +1088,10 @@ def ger_pedidos():
             cur.close()
 
             total_valor = sum([p['valor_total'] for p in pedidos])
-            return render_template('ger_pedidos.html', pedidos=pedidos, total_valor=total_valor)
+            #somar a quantidade total de produtos vendidos da coluna quantidade
+            qtde_total = sum([p['quantidade'] for p in pedidos])
+
+            return render_template('ger_pedidos.html', pedidos=pedidos, total_valor=total_valor, qtde_total=qtde_total)
             
         except Exception as e:
             logging.error(f"❌ Erro ao buscar pedidos: {e}")
@@ -1368,6 +1371,17 @@ def pedidos_cliente():
     finally:
         if cur:
             cur.close()
+
+
+@app.route('/imprimirSelecionados', methods=['POST'])
+def imprimirSelecionados():
+    ids = request.json.get('pedidos')
+
+    # Buscar pedidos no banco
+    pedidos = buscar_pedidos(ids)
+
+    return render_template('imprimirSelecionados.html', pedidos=pedidos)
+
 
 
 # Permite acesso por IP local da rede

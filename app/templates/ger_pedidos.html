@@ -50,15 +50,15 @@
             backdrop-filter: blur(10px);
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            padding: 30px;
+            padding: 10px;
             animation: fadeInUp 0.6s ease;
         }
 
         .filter-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px;
+            padding: 40px 10px;
             border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 60px;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
@@ -68,7 +68,7 @@
             font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 30px;
         }
 
         .filter-controls {
@@ -94,7 +94,7 @@
         }
 
         .form-group input {
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 8px;
             font-size: 1rem;
@@ -115,7 +115,7 @@
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 8px 10px;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -341,22 +341,27 @@
                         </label>
                         <input type="date" id="data_fim" name="data_fim" value="{{ request.args.get('data_fim', '') }}">
                     </div>
+                    <div class="form-group">
+                        <label for="numero_pedido">
+                            <i class="fas fa-hashtag"></i>
+                            Nº Pedido
+                        </label>
+                        <input type="text" id="numero_pedido" name="numero_pedido" placeholder="Digite o nº do pedido" onkeyup="filtrarPorNumeroPedido()">
+                    </div>
                     <div class="btn-group">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i>
                             Filtrar
-
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/pedidos_excel'">
-                        <i class="fas fa-file-excel"></i>
-                        Baixar Excel
-                    </button>
                         </button>
-                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/pedidos_excel'">
+                            <i class="fas fa-file-excel"></i>
+                            Excel
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="limparFiltros()">
                             <i class="fas fa-times"></i>
                             Limpar
                         </button>
+                    
                     </div>
                 </div>
             </form>
@@ -365,10 +370,16 @@
         <div class="stats-bar">
             <div class="stats-info">
                 <div class="stat-item">
+                    <i class="fas fa-money-check"></i>
+                    <span>Total R$ Apurado: 
+                        <span class="stat-number">R$ {{ total_valor }}</span>
+                    </span>
+                    
+                </div>
+                <div class="stat-item">
                     <i class="fas fa-users"></i>
-                    <span>Total R$ Processado: 
-    <span class="stat-number">R$ {{ total_valor }}</span>
-    </span>
+                    <span>Qtde Pedidos: <span class="stat-number">{{ pedidos|length }}</span></span>
+
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-clock"></i>
@@ -382,35 +393,44 @@
                 <i class="fas fa-arrow-left"></i>
                 Retornar    
             </button>
-                        </button>
+
+            <button class="btn btn-primary" onclick="imprimirPedidosSelecionados()">
+                <i class="fas fa-print"></i>
+                Imprimir Pedidos Selecionados
+            </button>
+
             <table>
                 <thead>
                     <tr>
+                        <th><i class="fas fa-box"></i> Nº Pedido</th>
                         <th><i class="fas fa-box"></i> Descrição Produto</th>
-                        <th><i class="fas fa-money-bill "></i> R$ Unitário</th>
+                        <th><i class="fas fa-money-bill"></i> R$ Unitário</th>
                         <th><i class="fas fa-barcode"></i> Quantidade</th>
                         <th><i class="fas fa-money-check"></i> R$ Total</th>
                         <th><i class="fas fa-person"></i> Cliente</th>
                         <th><i class="fas fa-phone"></i> Telefone</th>
                         <th><i class="fas fa-calendar-alt"></i> Data Pedido</th>   
+                        <th><i class="fas fa-check-square"></i> Selecione</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if pedidos %}
-                        {% for pedidos in pedidos%}
+                        {% for pedido in pedidos %}
                         <tr>
-                            <td>{{ pedidos.nome_prod }}</td>
-                            <td>{{ pedidos.valor_unitario }}</td>
-                            <td>{{ pedidos.quantidade }}</td>
-                            <td>{{ pedidos.valor_total }}</td>
-                            <td>{{ pedidos.nome_cliente}}</td>
-                            <td>{{ pedidos.telefone }}</td>    
-                            <td>{{ pedidos.dt_registro }}</td>
+                            <td>{{ pedido.id_pedido }}</td>
+                            <td>{{ pedido.nome_prod }}</td>
+                            <td>{{ pedido.valor_unitario }}</td>
+                            <td>{{ pedido.quantidade }}</td>
+                            <td>{{ pedido.valor_total }}</td>
+                            <td>{{ pedido.nome_cliente }}</td>
+                            <td>{{ pedido.telefone }}</td>    
+                            <td>{{ pedido.dt_registro }}</td>
+                            <td><input type="checkbox" name="pedidos" value="{{ pedido.id_pedido }}"></td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" class="no-data">
+                            <td colspan="9" class="no-data">
                                 <i class="fas fa-inbox"></i>
                                 <h3>Nenhum pedido encontrado</h3>
                                 <p>Não há pedidos cadastrados no sistema ou que correspondam aos filtros aplicados.</p>
@@ -423,10 +443,14 @@
     </div>
 
     <script>
+        // ===== FUNÇÃO: Limpar Filtros =====
         function limparFiltros() {
+            document.getElementById('numero_pedido').value = '';
+            filtrarPorNumeroPedido();
             window.location.href = '/ger_pedidos';
         }
 
+        // ===== FUNÇÃO: Atualizar Hora =====
         function atualizarHora() {
             const agora = new Date();
             const hora = agora.toLocaleTimeString('pt-BR');
@@ -435,6 +459,240 @@
 
         atualizarHora();
         setInterval(atualizarHora, 60000);
+
+        // ===== FUNÇÃO: Filtrar por Número de Pedido =====
+        function filtrarPorNumeroPedido() {
+            const numeroPedido = document.getElementById('numero_pedido').value.toLowerCase().trim();
+            const linhas = document.querySelectorAll('tbody tr');
+            let totalVisivel = 0;
+
+            linhas.forEach((linha) => {
+                if (linha.querySelector('.no-data')) {
+                    return;
+                }
+
+                const idPedido = linha.cells[0].textContent.trim().toLowerCase();
+
+                if (idPedido.includes(numeroPedido) || numeroPedido === '') {
+                    linha.style.display = '';
+                    if (numeroPedido !== '') {
+                        totalVisivel++;
+                    }
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+
+            // Se houver filtro e nenhum resultado
+            if (numeroPedido !== '' && totalVisivel === 0) {
+                const tbody = document.querySelector('tbody');
+                const mensagem = tbody.querySelector('.filtro-vazio');
+                if (!mensagem) {
+                    const tr = document.createElement('tr');
+                    tr.classList.add('filtro-vazio');
+                    tr.innerHTML = '<td colspan="9" class="no-data"><i class="fas fa-search"></i><h3>Nenhum pedido encontrado</h3><p>Não há pedidos com o número: ' + document.getElementById('numero_pedido').value + '</p></td>';
+                    tbody.appendChild(tr);
+                }
+            } else {
+                const mensagem = document.querySelector('.filtro-vazio');
+                if (mensagem) {
+                    mensagem.remove();
+                }
+            }
+        }
+
+        // ===== FUNÇÃO: Imprimir Pedidos Selecionados =====
+        function imprimirPedidosSelecionados() {
+            const pedidosSelecionados = document.querySelectorAll('input[name="pedidos"]:checked');
+
+            if (pedidosSelecionados.length === 0) {
+                alert('Selecione pelo menos um pedido para imprimir.');
+                return;
+            }
+
+            // Agrupar pedidos por ID
+            const pedidosAgrupados = {};
+
+            pedidosSelecionados.forEach((checkbox) => {
+                const idPedido = checkbox.value;
+                const linha = checkbox.closest('tr');
+
+                // Extrair dados da linha da tabela
+                const dadosProduto = {
+                    nome_prod: linha.cells[1].textContent.trim(),
+                    valor_unitario: linha.cells[2].textContent.trim(),
+                    quantidade: linha.cells[3].textContent.trim(),
+                    valor_total: linha.cells[4].textContent.trim()
+                };
+
+                // Se este pedido ID já existe, adicionar o produto
+                if (!pedidosAgrupados[idPedido]) {
+                    pedidosAgrupados[idPedido] = {
+                        id_pedido: idPedido,
+                        nome_cliente: linha.cells[5].textContent.trim(),
+                        telefone: linha.cells[6].textContent.trim(),
+                        dt_registro: linha.cells[7].textContent.trim(),
+                        produtos: []
+                    };
+                }
+
+                pedidosAgrupados[idPedido].produtos.push(dadosProduto);
+            });
+
+            // Imprimir cada pedido agrupado
+            Object.values(pedidosAgrupados).forEach((pedido) => {
+                // Calcular total do pedido
+                const totalPedido = pedido.produtos.reduce((total, produto) => {
+                    const valor = parseFloat(produto.valor_total.replace('R$', '').replace(',', '.')) || 0;
+                    return total + valor;
+                }, 0);
+
+                // Criar janela de impressão
+                const janela = window.open('', '_blank', 'width=400,height=600');
+
+                let linhasTabela = '';
+                pedido.produtos.forEach((produto) => {
+                    linhasTabela += `
+                        <tr>
+                            <td>${produto.nome_prod}</td>
+                            <td style="text-align: center;">${produto.quantidade}</td>
+                            <td style="text-align: right;">${produto.valor_unitario}</td>
+                            <td style="text-align: right; font-weight: bold;">${produto.valor_total}</td>
+                        </tr>
+                    `;
+                });
+
+                janela.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="pt-BR">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Pedido #${pedido.id_pedido}</title>
+                        <style>
+                            @media print {
+                                body {
+                                    width: 80mm;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                            }
+
+                            body {
+                                font-family: Arial, sans-serif;
+                                font-size: 12px;
+                                padding: 15px;
+                                background: white;
+                            }
+
+                            h3, h4 {
+                                text-align: center;
+                                margin: 8px 0;
+                            }
+
+                            h3 {
+                                font-size: 16px;
+                                font-weight: bold;
+                            }
+
+                            h4 {
+                                font-size: 14px;
+                                border-bottom: 2px solid #000;
+                                padding-bottom: 5px;
+                            }
+
+                            .info-pedido {
+                                font-size: 11px;
+                                margin: 8px 0;
+                                line-height: 1.6;
+                            }
+
+                            .info-pedido strong {
+                                display: inline-block;
+                                width: 70px;
+                            }
+
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 15px 0;
+                            }
+
+                            table th, table td {
+                                border-bottom: 1px dashed #000;
+                                padding: 6px 0;
+                                font-size: 11px;
+                                text-align: left;
+                            }
+
+                            table th {
+                                font-weight: bold;
+                                background: #f5f5f5;
+                            }
+
+                            .total {
+                                margin-top: 15px;
+                                font-size: 14px;
+                                font-weight: bold;
+                                text-align: right;
+                                border-top: 2px solid #000;
+                                padding-top: 10px;
+                            }
+
+                            .rodape {
+                                text-align: center;
+                                margin-top: 20px;
+                                font-size: 10px;
+                                color: #666;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h3>Comanda de Pedido</h3>
+                        <h4>PEDIDO #${pedido.id_pedido}</h4>
+                        <h4> Rua Dr. Potiguara Pereira de Miranda - Qd B 44
+                            Conjunto Benedito Bentes 1</h4>
+
+                        <div class="info-pedido">
+                            <div><strong>Cliente:</strong> ${pedido.nome_cliente}</div>
+                            <div><strong>Telefone:</strong> ${pedido.telefone}</div>
+                            <div><strong>Data:</strong> ${pedido.dt_registro}</div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produto |</th>
+                                    <th>Qtd |</th>
+                                    <th>Valor Unit.|</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${linhasTabela}
+                            </tbody>
+                        </table>
+
+                        <div class="total">
+                            TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}
+                        </div>
+
+                        <div class="rodape">
+                            <p>-----------------------------------</p>
+                            <p>Documento sem valor fiscal</p>
+                            <p>Obrigado pela preferência!</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                janela.document.close();
+
+                setTimeout(() => {
+                    janela.focus();
+                    janela.print();
+                }, 300);
+            });
+        }
     </script>
 </body>
 </html>
