@@ -8,3 +8,8 @@ Comando:
 # Realizei alterações no modulo de geração de pedidos,
 foi incluido para selecionar os pedidos, e também filtrar por pedidos, além de incluir quantidades e ajustes de nomenclaturas nos campos abaixo dos filtros.
 -------------------------------------------------------------------------------------
+
+#  21/01 -  Realizei uma pequena modificação na tela principal do aplicativo informando o horário de atendimento e também incluíndo
+   o telefone do estabelecimeno para caso queiram entrar em contato ligando.
+
+-------------------------------------------------------------------------------------
