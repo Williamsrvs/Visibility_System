@@ -1387,6 +1387,71 @@ def imprimirSelecionados():
     return render_template('imprimirSelecionados.html', pedidos=pedidos)
 
 
+@app.route('/entregadores', methods=['GET', 'POST'])
+def entregadores():
+    cur = None
+    try:
+        conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
+        
+        if request.method == 'GET':
+            cur.execute("SELECT * FROM tbl_entregadores")
+            entregadores = cur.fetchall()
+            return render_template('entregadores.html', entregadores=entregadores)
+
+        elif request.method == 'POST':
+            dados = request.form
+            cur.execute("""
+CREATE TABLE IF NOT EXISTS tbl_entregadores (
+    id_entregador INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nome_entregador VARCHAR(100),
+    habilitacao VARCHAR(50),
+    tipo_cnh enum('A', 'B', 'C', 'D', 'E', 'AB','ACC') NOT NULL,
+    validade_cnh DATE,
+    endereco VARCHAR(200),
+    bairro VARCHAR(50),
+    cidade VARCHAR(50),
+    uf VARCHAR(50),
+    telefone VARCHAR(50),
+    veiculo VARCHAR(50),
+    ano_veiculo INT,
+    cor VARCHAR(50),
+    placa VARCHAR(20),
+    ativo TINYINT DEFAULT 1,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+            cur.execute("""
+INSERT INTO tbl_entregadores (nome_entregador, habilitacao, tipo_cnh, validade_cnh, endereco, bairro, cidade, uf, telefone, veiculo, ano_veiculo, cor, placa)
+VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+""", (
+    dados.get('nome_entregador'),
+    dados.get('habilitacao'),
+    dados.get('tipo_cnh'),
+    dados.get('validade_cnh'),
+    dados.get('endereco'),
+    dados.get('bairro'),
+    dados.get('cidade'),
+    dados.get('uf'),
+    dados.get('telefone'),
+    dados.get('veiculo'),
+    dados.get('ano_veiculo'),
+    dados.get('cor'),
+    dados.get('placa')
+))
+    
+            conn.commit()
+            logging.info(f"✅ Entregador cadastrado: {dados.get('nome_entregador')}")
+            return redirect(url_for('entregadores'))
+
+    except Exception as e:
+        logging.error(f"❌ Erro na rota /entregadores: {e}")
+        if conn is not None:
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+
 
 # Permite acesso por IP local da rede
 app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)

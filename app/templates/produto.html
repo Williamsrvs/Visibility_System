@@ -56,17 +56,14 @@
     <label for="subgrupo">Subgrupo</label>
     <select id="subgrupo" name="subgrupo" required class="form-control">
     <option value="">Selecione um subgrupo</option>
-    <option value="Combo">Combo (*)</option>
-    <option value="Hamburguer">Hamburguer</option>
-    <option value="Sanduiche">Sanduiche</option>
-    <option value="Sanduiche Natural">Sanduiche Natural</option>
-    <option value="Bebidas">Bebidas</option>
     <option value="Prato da Casa">Prato da Casa</option>
-    <option value="Salgados">Salgados</option>    
-    <option value="Pizzas e Massas">Pizzas e Massas</option>    
-    <option value="Hot Dog">Hot Dog</option>    
-    <option value="Pasteis">Pasteis</option>
-
+    <option value="Acompanhamento">Acompanhamento</option>
+    <option value="Sobremesa">Sobremesa</option>
+    <option value="Porção">Porção</option>
+    <option value="Peixada">Peixada</option>
+    <option value="Bebidas">Bebidas</option>
+    <option value="Quentinha">Quentinha (M)</option>
+    <option value="Quentinha">Quentinha (G)</option>
 
     </select>
     </div>
@@ -159,16 +156,14 @@
             <label for="edit_subgrupo{{ p.id_prod }}">Subgrupo:</label>
             <select id="edit_subgrupo{{ p.id_prod }}" name="subgrupo" required class="form-control">
             <option value="">Selecione um subgrupo</option>
-            <option value="Combo" {% if p.subgrupo == 'Combo' %}selected{% endif %}>Combo</option>
-            <option value="Hamburguer" {% if p.subgrupo == 'Hamburguer' %}selected{% endif %}>Hamburguer</option>
-            <option value="Sanduiche" {% if p.subgrupo == 'Sanduiche' %}selected{% endif %}>Sanduiche</option>
-            <option value="Sanduiche Natural" {% if p.subgrupo == 'Sanduiche Natural' %}selected{% endif %}>Sanduiche Natural</option>
-            <option value="Bebidas" {% if p.subgrupo == 'Bebidas' %}selected{% endif %}>Bebidas</option>
             <option value="Prato da Casa" {% if p.subgrupo == 'Prato da Casa' %}selected{% endif %}>Prato da Casa</option>
-            <option value="Salgados" {% if p.subgrupo == 'Salgados' %}selected{% endif %}>Salgados</option>
-            <option value="Pizzas e Massas" {% if p.subgrupo == 'Pizzas e Massas' %}selected{% endif %}>Pizzas e Massas</option>
-            <option value="Hot Dog" {% if p.subgrupo == 'Hot Dog' %}selected{% endif %}>Hot Dog</option>
-            <option value="Pasteis" {% if p.subgrupo == 'Pasteis' %}selected{% endif %}>Pasteis</option>
+            <option value="Acompanhamento" {% if p.subgrupo == 'Acompanhamento' %}selected{% endif %}>Acompanhamento</option>
+            <option value="Sobremesa" {% if p.subgrupo == 'Sobremesa' %}selected{% endif %}>Sobremesa</option>
+            <option value="Peixada" {% if p.subgrupo == 'Peixada' %}selected{% endif %}>Peixada</option>
+            <option value="Quentinha (M)" {% if p.subgrupo == 'Quentinha (M)' %}selected{% endif %}>Quentinha (M)</option>
+            <option value="Quentinha (G)" {% if p.subgrupo == 'Quentinha (G)' %}selected{% endif %}>Quentinha (G)</option>
+            <option value="Porção" {% if p.subgrupo == 'Porção' %}selected{% endif %}>Porção</option>
+        
         
         </select>
         </div>

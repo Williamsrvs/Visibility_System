@@ -175,3 +175,23 @@ JOIN u799109175_menu_prod.tbl_cliente cl
 ON pe.id_pedido = cl.id_cliente
 GROUP BY
 bairro;
+
+CREATE TABLE IF NOT EXISTS tbl_entregadores(
+    id_entregador INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nome_entregador VARCHAR(100),
+    tipo_entregador enum('Próprio', 'Terceirizado') NOT NULL,
+    habilitacao VARCHAR(50),
+    tipo_cnh enum('A', 'B', 'C', 'D', 'E', 'AB','ACC') NOT NULL,
+    validade_cnh DATE,
+    endereco VARCHAR(200),
+    bairro VARCHAR(50),
+    cidade VARCHAR(50),
+    uf VARCHAR(50),
+    telefone VARCHAR(50),
+    veiculo VARCHAR(50),
+    ano_veiculo INT,
+    cor VARCHAR(50),
+    placa VARCHAR(20),
+    ativo TINYINT DEFAULT 1,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
