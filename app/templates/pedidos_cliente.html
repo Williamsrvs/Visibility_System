@@ -706,6 +706,11 @@
                         <label>Nº Mesa (Opcional)</label>
                         <input type="number" id="tableNumber" placeholder="Número da mesa" min="0">
                     </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <input type="text" id="observacao" placeholder="Digite uma observação" >
+                    </div>
+
                 </div>
             </div>
 
@@ -786,7 +791,7 @@
         let productCounter = 0;
         
         const WHATSAPP_LOJISTA = '5582981090042';
-        const CHAVE_PIX = '05566941478';
+        const CHAVE_PIX = 'MINHA CHAVE PIX FICARÁ AQUI';
         const NOME_BENEFICIARIO = 'WILLIAMS RODRIGUES VIEIRA SILVA';
 
         // Produtos carregados do servidor Flask
@@ -1189,7 +1194,9 @@
                         bairro: document.getElementById('customerBairro').value || '',
                         ponto_referencia: document.getElementById('customerReferencia').value || '',
                         form_pgmto: document.getElementById('form_pgmto').value || '',
-                        tipo_consumo: document.getElementById('tipo_consumo').value || ''
+                        tipo_consumo: document.getElementById('tipo_consumo').value || '',
+                        observacao: document.getElementById('observacao').value || ''
+                        
                     })
                 });
 
@@ -1258,7 +1265,8 @@
                         bairro: document.getElementById('customerBairro').value || '',
                         ponto_referencia: document.getElementById('customerReferencia').value || '',
                         form_pgmto: document.getElementById('form_pgmto').value || '',
-                        tipo_consumo: document.getElementById('tipo_consumo').value || ''
+                        tipo_consumo: document.getElementById('tipo_consumo').value || '',
+                        observacao: document.getElementById('observacao').value || ''
                     })
                 });
 
@@ -1280,6 +1288,7 @@
                 mensagem += `🗺️ *Ponto de Referência:* ${document.getElementById('customerReferencia').value || 'N/A'}\n`;
                 mensagem += `💳 *Forma de Pagamento:* ${document.getElementById('form_pgmto').value || 'N/A'}\n`;
                 mensagem += `🍽️ *Tipo de Consumo:* ${document.getElementById('tipo_consumo').value || 'N/A'}\n`;
+                mensagem += `🍽️ *Observações:* ${document.getElementById('observacao').value || 'N/A'}\n`;
                 
                 // Incluindo número da mesa se informado
                 const mesaNumber = document.getElementById('tableNumber').value;
@@ -1628,7 +1637,8 @@ document.getElementById('printBtn')?.addEventListener('click', async function ()
                 bairro: document.getElementById('customerBairro').value || '',
                 ponto_referencia: document.getElementById('customerReferencia').value || '',
                 form_pgmto: document.getElementById('form_pgmto').value || '',
-                tipo_consumo: document.getElementById('tipo_consumo').value || ''
+                tipo_consumo: document.getElementById('tipo_consumo').value || '',
+                observacao: document.getElementById('observacao').value || ''
             })
         });
 

@@ -16,10 +16,10 @@
     <nav class="sidebar_menu" id="sidebar">
         
         <div class="sidebar_header">
-        
-        </div>
-            <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/FUNDO%20TRANSPARENTE.png" alt="Logo Date Analytics" class="sidebar_logo" style="height: auto; margin-bottom: 10px;">    
             <h2>Menu Navegação</h2>
+                </div>
+            <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/logo%20pedido%20certo.png" alt="Logo Date Analytics" class="sidebar_logo" style="height: auto; margin-bottom: 10px;">    
+            
         
         <div class="menu_list">
             <button id="toggleFormBtn" class="btn" >➕ Adicionar produto</button>
@@ -216,6 +216,26 @@
 
 <script>
     // Toggle simples para mostrar/ocultar o formulário em telas pequenas
+    
+    function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Fecha o menu ao clicar fora (mobile)
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu_toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+    
+    
+    
     (function(){
     const btn = document.getElementById('toggleFormBtn');
     const form = document.getElementById('productForm');

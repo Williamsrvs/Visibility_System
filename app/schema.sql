@@ -90,7 +90,7 @@ CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
     ponto_referencia TEXT,
     form_pgmto enum('dinheiro', 'cartao', 'pix') NOT NULL,
     tipo_consumo enum('No Local', 'Retira', 'Delivery') NOT NULL,
-
+    observacao TEXT,
 
     FOREIGN KEY (id_pedido) REFERENCES tbl_pedidos(id_pedido),
     FOREIGN KEY (id_prod) REFERENCES tbl_prod(id_prod),

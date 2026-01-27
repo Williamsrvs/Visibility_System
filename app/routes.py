@@ -921,6 +921,7 @@ def salvar_pedido():
         ponto_referencia = dados.get('ponto_referencia', '')
         form_pgmto = dados.get('form_pgmto', '')
         tipo_consumo = dados.get('tipo_consumo', '')
+        observacao = dados.get('observacao', '')
 
         if not carrinho:
             return jsonify({"status": "erro", "mensagem": "Carrinho vazio"}), 400
@@ -979,9 +980,9 @@ def salvar_pedido():
             
             cur.execute("""
                 INSERT INTO tbl_detalhes_pedido 
-                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo))
+                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao))
         
         conn.commit()
         logging.info(f"✅ Pedido salvo: {id_pedido} com {len(carrinho)} itens")
