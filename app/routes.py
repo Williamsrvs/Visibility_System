@@ -922,6 +922,7 @@ def salvar_pedido():
         form_pgmto = dados.get('form_pgmto', '')
         tipo_consumo = dados.get('tipo_consumo', '')
         observacao = dados.get('observacao', '')
+        taxa_entrega = dados.get('taxa_entrega', 0.0)
 
         if not carrinho:
             return jsonify({"status": "erro", "mensagem": "Carrinho vazio"}), 400
@@ -980,9 +981,9 @@ def salvar_pedido():
             
             cur.execute("""
                 INSERT INTO tbl_detalhes_pedido 
-                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao))
+                (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone, valor_total, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao,taxa_entrega)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (id_pedido, id_prod, id_cliente, quantidade, preco_unitario, nome_cliente, telefone_cliente, valor_item, numero_mesa, endereco, bairro, ponto_referencia, form_pgmto, tipo_consumo, observacao,taxa_entrega))
         
         conn.commit()
         logging.info(f"✅ Pedido salvo: {id_pedido} com {len(carrinho)} itens")
@@ -991,8 +992,10 @@ def salvar_pedido():
             "status": "sucesso",
             "mensagem": "Pedido salvo com sucesso!",
             "id_pedido": id_pedido,
-            "valor_total": float(valor_total)
+            "valor_total": float(valor_total),
+            "taxa_entrega": float(taxa_entrega) if taxa_entrega else 0.0
         }), 200
+
         
     except Exception as e:
         logging.error(f"❌ Erro ao salvar pedido: {e}")
@@ -1007,7 +1010,7 @@ def salvar_pedido():
 @app.route('/enviar_whatsapp', methods=['POST'])
 def enviar_whatsapp():
     """
-    Gera link wa.me para enviar pedido via WhatsApp
+    Gera link wa.me para enviar pedido via WhatsApp 
     NÃO salva pedido - apenas gera e retorna URL
     """
     try:
@@ -1094,13 +1097,14 @@ def ger_pedidos():
 
             total_valor = sum([p['valor_total'] for p in pedidos])
             #somar a quantidade total de produtos vendidos da coluna quantidade
-            qtde_total = sum([p['quantidade'] for p in pedidos])
+            qtde_total = len(set([p['id_pedido'] for p in pedidos]))
+            qtde_itens = sum([p['quantidade'] for p in pedidos])
 
-            return render_template('ger_pedidos.html', pedidos=pedidos, total_valor=total_valor, qtde_total=qtde_total)
+            return render_template('ger_pedidos.html', pedidos=pedidos, total_valor=total_valor, qtde_total=qtde_total, qtde_itens=qtde_itens)
             
         except Exception as e:
             logging.error(f"❌ Erro ao buscar pedidos: {e}")
-            return render_template('ger_pedidos.html', pedidos=[])
+            return render_template('ger_pedidos.html', pedidos=[], qtde_total=0, qtde_itens=0)
     
     return render_template('ger_pedidos.html')
 

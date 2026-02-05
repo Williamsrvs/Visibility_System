@@ -172,10 +172,11 @@
             align-items: center;
             gap: 8px;
             padding: 8px 15px;
-            background: #f5f5f5;
+            background: #eec476;
             border-radius: 8px;
-            font-size: 0.95rem;
-            color: #546e7a;
+            font-size: 14px;
+            color: #020127;
+            justify-content: center;
         }
 
         .stat-item i {
@@ -378,8 +379,11 @@
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-users"></i>
-                    <span>Qtde Pedidos: <span class="stat-number">{{ pedidos|length }}</span></span>
-
+                    <span>Total de Linhas Processadas: <span class="stat-number">{{ pedidos|length }}</span></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-boxes"></i>
+                    <span>Total de Itens Processados: <span class="stat-number">{{ qtde_itens }}</span></span>
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-clock"></i>
