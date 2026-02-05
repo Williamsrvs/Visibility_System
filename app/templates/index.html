@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 📑 Pedido Certo</title>
+    <title>Pedido Certo - Catálogo Digital</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <header class="main-header">
         <div class="button-container">
-    <a href="/login" class="login-button">🏠 Lojista</a>
-</div>
-
-        </div>  
-    
+            <a href="/login" class="login-button">🏠 Lojista</a>
+        </div>
+        <div></div> <!-- Spacer -->
     </header>
 
+    <section class="intro">
+        <h2>Bem-vindo ao Pedido Certo!</h2>
+        <p>Faça seu pedido de forma rápida e prática diretamente pelo nosso catálogo.</p>
+        <h2>🕜 Terça a Domingo: 18:00h às 23:59h</h2>
+        <h2>📞 (82) 98109-0042</h2>
+    </section>
+
     <div class="select-box">
-        <label for="grupo-select">Filtrar por Grupo:</label>
+        <label for="grupo-select">Filtrar por Categoria</label>
         <select id="grupo-select" onchange="location = this.value;">
-            <option value="/">Todos os Grupos</option>
+            <option value="/">Todas as Categorias</option>
             {% for subgrupo in subgrupos %}
                 <option value="/subgrupo/{{ subgrupo.subgrupo }}" {% if subgrupos_selecionado == subgrupo.subgrupo %}selected{% endif %}>{{ subgrupo.subgrupo }}</option>
             {% endfor %}
@@ -31,24 +36,15 @@
     </div>
 
     <nav class="nav-tabs">
-            <ul class="tabs-list">
-                <li class="tab-item"><a href="/">🛖 Inicio</a></li>
-                <li class="tab-item"><a href="/contato">💬Fale Conosco</a></li>
-                <li class="tab-item" ><a href="/pesquisa" target="_blank">📣 Pesquisa Satisfação</a></li>
-                <li class="tab-item"><a href="" onclick="compartilharPagina()">✅ Compartilhar</a></li>
-                <li class="tab-item"><a href="https://dateanalytics.com.br/" target="_blank">🌐 Nosso Site</a></li>
-            </ul>   
-        </nav>
+        <ul class="tabs-list">
+            <li class="tab-item"><a href="/">🛖 Início</a></li>
+            <li class="tab-item"><a href="/contato">💬 Fale Conosco</a></li>
+            <li class="tab-item"><a href="/pesquisa" target="_blank">📣 Pesquisa</a></li>
+            <li class="tab-item"><a href="#" onclick="compartilharPagina()">✅ Compartilhar</a></li>
+        </ul>   
+    </nav>
 
     <main class="main-content">
-        <section class="intro">
-            <h2>Esta é sua plataforma para realizar pedidos de serviços e produtos, faça o pedido agora mesmo!</h2>
-            <h2>🕜 Horário de Atendimento: Aberto de Terça a Domingo das 18:00h as 23:59h</h2>
-            <h2>📞 (82) 98109-0042</h2>
-        </section>
-
-    
-
         <section class="products-grid">
             {% if produtos %}
                 {% for p in produtos %}
@@ -57,39 +53,45 @@
                             {% if p.imagem_url %}
                                 <img src="data:image/jpeg;base64,{{ p.imagem_url|b64encode }}" alt="{{ p.nome_prod }}">
                             {% else %}
-                                <img src="https://via.placeholder.com/300x200.png?text=Sem+Imagem" alt="Sem imagem">
+                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Sem imagem">
                             {% endif %}
                         </div>
                         <div class="product-info">
-                            <h3>{{ p.nome_prod }}</h3>  
-                            <p>_______________________________</p>
-                            <strong><p>Descrição do Produto:</p></strong><p>{{ p.descricao }}</p>
-                            <p>_______________________________</p>
-                            <strong><h4>Grupo:</strong></h4><p>{{ p.subgrupo}}</p>
-                            <p>_______________________________</p>
-                            <strong>Promoção do Dia:</strong><strong><span><p>{{ p.status_promocao }}</p></span></strong>
-                            <p>_______________________________</p>
-                            <strong><h4>R$ Valor:</h4></strong><div class="product-price">R$ {{ "%.2f"|format(p.valor|float) }}</div>
+                            <h3>{{ p.nome_prod }}</h3>
+                            <div class="divider"></div>
+                            <p><strong>Descrição:</strong> {{ p.descricao or 'Sem descrição disponível.' }}</p>
+                            <p><strong>Categoria:</strong> {{ p.subgrupo }}</p>
+                            {% if p.status_promocao and p.status_promocao != 'Não' %}
+                                <p style="color: #e63946; font-weight: 700;">🔥 {{ p.status_promocao }}</p>
+                            {% endif %}
+                            
+                            <div class="product-price">R$ {{ "%.2f"|format(p.valor|float) }}</div>
 
-                            <div class="tab-item">
-                                <a href="/pedidos_cliente">🛒 Faça Seu Pedido</a>
+                            <div class="order-btn-container">
+                                <a href="/pedidos_cliente">🛒 Fazer Pedido</a>
                             </div>
-
                         </div>  
                     </div>
                 {% endfor %}
             {% else %}
-                <p class="no-products">Nenhum produto cadastrado.</p>
+                <p class="no-products">Nenhum produto encontrado nesta categoria.</p>
             {% endif %}
-
-            
         </section>
-        
     </main>
 
     <footer class="footer">
         <p>&copy; 2025 Date Analytics. Todos os direitos reservados.</p>
     </footer>
+
+    <nav class="nav-tabs">
+        <ul class="tabs-list">
+            <li class="tab-item"><a href="/">🛖 Início</a></li>
+            <li class="tab-item"><a href="/contato">💬 Fale Conosco</a></li>
+            <li class="tab-item"><a href="/pesquisa" target="_blank">📣 Pesquisa</a></li>
+            <li class="tab-item"><a href="#" onclick="compartilharPagina()">✅ Compartilhar</a></li>
+        </ul>   
+    </nav>
+
     <script>
         async function compartilharPagina() {
             try {
@@ -99,12 +101,10 @@
                 if (navigator.share) {
                     await navigator.share({
                         title: title,
-                        text: 'Conheça a Date Analytics - Soluções inteligentes em análise de dados!',
+                        text: 'Confira nosso cardápio digital!',
                         url: url
                     });
-                    console.log('Página compartilhada com sucesso!');
                 } else {
-                    // Fallback para navegadores que não suportam Web Share API
                     const tempInput = document.createElement('input');
                     tempInput.value = url;
                     document.body.appendChild(tempInput);
