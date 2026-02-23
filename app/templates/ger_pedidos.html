@@ -44,7 +44,7 @@
         }
 
         .container_data {
-            max-width: 1400px;
+            max-width: 1800px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -444,6 +444,7 @@
                         <th><i class="fas fa-map-marker-alt"></i> Bairro</th>
                         <th><i class="fas fa-credit-card"></i> Forma Pgmto</th>
                         <th><i class="fas fa-barcode"></i> Quantidade</th>
+                        <th><i class="fas fa-money-check"></i> R$ Taxa Entrega</th>
                         <th><i class="fas fa-money-check"></i> R$ Total</th>
                         <th><i class="fas fa-concierge-bell"></i> Tipo Serviço</th>
                         <th><i class="fas fa-phone"></i> Telefone</th>
@@ -463,10 +464,11 @@
                             <td>{{ pedido.bairro }}</td>
                             <td>{{ pedido.form_pgmto }}</td>
                             <td>{{ pedido.qtde }}</td>
+                            <td>{{ pedido.tx_entrega }}</td>
                             <td>{{ pedido.valor_total }}</td>
                             <td>{{ pedido.tipo_consumo }}</td>
                             <td>{{ pedido.telefone }}</td>
-                            <td>{{ pedido.nome_produto }}</td>
+                            <td>{{ pedido.nome_prod }}</td>
                             <td><input type="checkbox" name="pedidos" value="{{ pedido.id_pedido }}"></td>
                             <td>
                                 <select class="status-select status-{{ pedido.status_pedido | lower | replace(' ', '-') }}"
@@ -733,7 +735,7 @@
                         <span class="item-total">Total</span>
                     </div>
                     ${linhasItens}
-                </div>  
+                </div>      
 
                 <div class="total-box">
                     <div class="total-linha">
