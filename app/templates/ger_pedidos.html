@@ -14,15 +14,20 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, rgba(67, 97, 238, 0.15) 0%, rgba(76, 201, 240, 0.15) 100%),
-                        url('https://i.postimg.cc/VNC52Dwv/cliente-2.png') no-repeat center center fixed;
-            background-size: cover;
-            background-blend-mode: overlay;
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
+        url('https://raw.githubusercontent.com/Williamsrvs/imagens_sistemas/refs/heads/main/imagem%202.png');
+
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+
+    min-height: 100vh;
+    margin: 0;
+    }
 
         .header {
             text-align: center;
@@ -256,62 +261,95 @@
             font-size: 1rem;
         }
 
+        /* ===== SELECT STATUS ===== */
+        .status-select {
+            padding: 6px 10px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .status-select:hover {
+            transform: scale(1.04);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .status-select.status-pendente {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .status-select.status-em-producao {
+            background: #cce5ff;
+            color: #004085;
+            border-color: #004085;
+        }
+
+        .status-select.status-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .status-select.status-finalizado {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        /* ===== TOAST DE FEEDBACK ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.sucesso { background: #28a745; }
+        .toast.erro    { background: #dc3545; }
+
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .filter-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .stats-bar {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-
-            .stats-info {
-                flex-wrap: wrap;
-            }
-
-            .container_data {
-                padding: 20px;
-            }
-
-            table {
-                font-size: 0.85rem;
-            }
-
-            thead th, tbody td {
-                padding: 12px 10px;
-            }
+            .header h1 { font-size: 2rem; }
+            .filter-controls { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .stats-bar { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .stats-info { flex-wrap: wrap; }
+            .container_data { padding: 20px; }
+            table { font-size: 0.85rem; }
+            thead th, tbody td { padding: 12px 10px; }
         }
     </style>
 
@@ -362,7 +400,6 @@
                             <i class="fas fa-times"></i>
                             Limpar
                         </button>
-                    
                     </div>
                 </div>
             </form>
@@ -372,10 +409,9 @@
             <div class="stats-info">
                 <div class="stat-item">
                     <i class="fas fa-money-check"></i>
-                    <span>Total R$ Apurado: 
+                    <span>Total R$ Apurado:
                         <span class="stat-number">R$ {{ total_valor }}</span>
                     </span>
-                    
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-users"></i>
@@ -395,7 +431,7 @@
         <div class="table-wrapper">
             <button class="btn btn-primary" onclick="window.location.href='/lojista'">
                 <i class="fas fa-arrow-left"></i>
-                Retornar    
+                Retornar
             </button>
 
             <button class="btn btn-primary" onclick="imprimirPedidosSelecionados()">
@@ -407,14 +443,17 @@
                 <thead>
                     <tr>
                         <th><i class="fas fa-box"></i> Nº Pedido</th>
-                        <th><i class="fas fa-box"></i> Descrição Produto</th>
-                        <th><i class="fas fa-money-bill"></i> R$ Unitário</th>
+                        <th><i class="fas fa-calendar-alt"></i> Data Pedido</th>
+                        <th><i class="fas fa-user"></i> Nome Cliente</th>
+                        <th><i class="fas fa-location-arrow"></i> Endereço</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Bairro</th>
+                        <th><i class="fas fa-credit-card"></i> Forma Pgmto</th>
                         <th><i class="fas fa-barcode"></i> Quantidade</th>
                         <th><i class="fas fa-money-check"></i> R$ Total</th>
-                        <th><i class="fas fa-person"></i> Cliente</th>
+                        <th><i class="fas fa-concierge-bell"></i> Tipo Serviço</th>
                         <th><i class="fas fa-phone"></i> Telefone</th>
-                        <th><i class="fas fa-calendar-alt"></i> Data Pedido</th>   
                         <th><i class="fas fa-check-square"></i> Selecione</th>
+                        <th><i class="fas fa-tasks"></i> Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -422,19 +461,30 @@
                         {% for pedido in pedidos %}
                         <tr>
                             <td>{{ pedido.id_pedido }}</td>
-                            <td>{{ pedido.nome_prod }}</td>
-                            <td>{{ pedido.valor_unitario }}</td>
-                            <td>{{ pedido.quantidade }}</td>
-                            <td>{{ pedido.valor_total }}</td>
-                            <td>{{ pedido.nome_cliente }}</td>
-                            <td>{{ pedido.telefone }}</td>    
                             <td>{{ pedido.dt_registro }}</td>
+                            <td>{{ pedido.nome_cliente }}</td>
+                            <td>{{ pedido.endereco }}</td>
+                            <td>{{ pedido.bairro }}</td>
+                            <td>{{ pedido.form_pgmto }}</td>
+                            <td>{{ pedido.qtde }}</td>
+                            <td>{{ pedido.valor_total }}</td>
+                            <td>{{ pedido.tipo_consumo }}</td>
+                            <td>{{ pedido.telefone }}</td>
                             <td><input type="checkbox" name="pedidos" value="{{ pedido.id_pedido }}"></td>
+                            <td>
+                                <select class="status-select status-{{ pedido.status_pedido | lower | replace(' ', '-') }}"
+                                        onchange="atualizarStatus(this, '{{ pedido.id_pedido }}')">
+                                    <option value="Pendente"    {% if pedido.status_pedido == 'Pendente' %}selected{% endif %}>⏳ Pendente</option>
+                                    <option value="Em producao" {% if pedido.status_pedido == 'Em producao' %}selected{% endif %}>🔧 Em Produção</option>
+                                    <option value="Cancelado"   {% if pedido.status_pedido == 'Cancelado' %}selected{% endif %}>❌ Cancelado</option>
+                                    <option value="Finalizado"  {% if pedido.status_pedido == 'Finalizado' %}selected{% endif %}>✅ Finalizado</option>
+                                </select>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="9" class="no-data">
+                            <td colspan="12" class="no-data">
                                 <i class="fas fa-inbox"></i>
                                 <h3>Nenhum pedido encontrado</h3>
                                 <p>Não há pedidos cadastrados no sistema ou que correspondam aos filtros aplicados.</p>
@@ -445,6 +495,9 @@
             </table>
         </div>
     </div>
+
+    <!-- Toast de feedback -->
+    <div id="toast-status" class="toast"></div>
 
     <script>
         // ===== FUNÇÃO: Limpar Filtros =====
@@ -471,38 +524,76 @@
             let totalVisivel = 0;
 
             linhas.forEach((linha) => {
-                if (linha.querySelector('.no-data')) {
-                    return;
-                }
+                if (linha.querySelector('.no-data')) return;
 
                 const idPedido = linha.cells[0].textContent.trim().toLowerCase();
 
                 if (idPedido.includes(numeroPedido) || numeroPedido === '') {
                     linha.style.display = '';
-                    if (numeroPedido !== '') {
-                        totalVisivel++;
-                    }
+                    if (numeroPedido !== '') totalVisivel++;
                 } else {
                     linha.style.display = 'none';
                 }
             });
 
-            // Se houver filtro e nenhum resultado
             if (numeroPedido !== '' && totalVisivel === 0) {
                 const tbody = document.querySelector('tbody');
-                const mensagem = tbody.querySelector('.filtro-vazio');
-                if (!mensagem) {
+                if (!tbody.querySelector('.filtro-vazio')) {
                     const tr = document.createElement('tr');
                     tr.classList.add('filtro-vazio');
-                    tr.innerHTML = '<td colspan="9" class="no-data"><i class="fas fa-search"></i><h3>Nenhum pedido encontrado</h3><p>Não há pedidos com o número: ' + document.getElementById('numero_pedido').value + '</p></td>';
+                    tr.innerHTML = `<td colspan="12" class="no-data">
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhum pedido encontrado</h3>
+                        <p>Não há pedidos com o número: ${document.getElementById('numero_pedido').value}</p>
+                    </td>`;
                     tbody.appendChild(tr);
                 }
             } else {
                 const mensagem = document.querySelector('.filtro-vazio');
-                if (mensagem) {
-                    mensagem.remove();
-                }
+                if (mensagem) mensagem.remove();
             }
+        }
+
+        // ===== FUNÇÃO: Atualizar Status do Pedido =====
+        async function atualizarStatus(selectEl, idPedido) {
+            const novoStatus = selectEl.value;
+
+            // Mapeia o valor para a classe CSS correspondente
+            const mapaClasse = {
+                'Pendente':    'status-pendente',
+                'Em producao': 'status-em-producao',
+                'Cancelado':   'status-cancelado',
+                'Finalizado':  'status-finalizado'
+            };
+
+            // Atualiza a cor imediatamente (UX responsivo)
+            selectEl.className = 'status-select ' + (mapaClasse[novoStatus] || '');
+
+            try {
+                const response = await fetch('/atualizar_status_pedido', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_pedido: idPedido, status: novoStatus })
+                });
+
+                const data = await response.json();
+
+                if (data.sucesso) {
+                    mostrarToast('✅ Status atualizado com sucesso!', 'sucesso');
+                } else {
+                    mostrarToast('❌ Erro ao atualizar status.', 'erro');
+                }
+            } catch (err) {
+                mostrarToast('❌ Falha na conexão.', 'erro');
+            }
+        }
+
+        // ===== FUNÇÃO: Exibir Toast de Feedback =====
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.getElementById('toast-status');
+            toast.textContent = mensagem;
+            toast.className = `toast ${tipo} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         // ===== FUNÇÃO: Imprimir Pedidos Selecionados =====
@@ -514,28 +605,25 @@
                 return;
             }
 
-            // Agrupar pedidos por ID
             const pedidosAgrupados = {};
 
             pedidosSelecionados.forEach((checkbox) => {
                 const idPedido = checkbox.value;
                 const linha = checkbox.closest('tr');
 
-                // Extrair dados da linha da tabela
                 const dadosProduto = {
-                    nome_prod: linha.cells[1].textContent.trim(),
+                    nome_prod:      linha.cells[1].textContent.trim(),
                     valor_unitario: linha.cells[2].textContent.trim(),
-                    quantidade: linha.cells[3].textContent.trim(),
-                    valor_total: linha.cells[4].textContent.trim()
+                    quantidade:     linha.cells[3].textContent.trim(),
+                    valor_total:    linha.cells[4].textContent.trim()
                 };
 
-                // Se este pedido ID já existe, adicionar o produto
                 if (!pedidosAgrupados[idPedido]) {
                     pedidosAgrupados[idPedido] = {
-                        id_pedido: idPedido,
+                        id_pedido:    idPedido,
                         nome_cliente: linha.cells[5].textContent.trim(),
-                        telefone: linha.cells[6].textContent.trim(),
-                        dt_registro: linha.cells[7].textContent.trim(),
+                        telefone:     linha.cells[6].textContent.trim(),
+                        dt_registro:  linha.cells[7].textContent.trim(),
                         produtos: []
                     };
                 }
@@ -543,15 +631,12 @@
                 pedidosAgrupados[idPedido].produtos.push(dadosProduto);
             });
 
-            // Imprimir cada pedido agrupado
             Object.values(pedidosAgrupados).forEach((pedido) => {
-                // Calcular total do pedido
                 const totalPedido = pedido.produtos.reduce((total, produto) => {
                     const valor = parseFloat(produto.valor_total.replace('R$', '').replace(',', '.')) || 0;
                     return total + valor;
                 }, 0);
 
-                // Criar janela de impressão
                 const janela = window.open('', '_blank', 'width=400,height=600');
 
                 let linhasTabela = '';
@@ -559,11 +644,10 @@
                     linhasTabela += `
                         <tr>
                             <td>${produto.nome_prod}</td>
-                            <td style="text-align: center;">${produto.quantidade}</td>
-                            <td style="text-align: right;">${produto.valor_unitario}</td>
-                            <td style="text-align: right; font-weight: bold;">${produto.valor_total}</td>
-                        </tr>
-                    `;
+                            <td style="text-align:center;">${produto.quantidade}</td>
+                            <td style="text-align:right;">${produto.valor_unitario}</td>
+                            <td style="text-align:right;font-weight:bold;">${produto.valor_total}</td>
+                        </tr>`;
                 });
 
                 janela.document.write(`
@@ -573,128 +657,51 @@
                         <meta charset="UTF-8">
                         <title>Pedido #${pedido.id_pedido}</title>
                         <style>
-                            @media print {
-                                body {
-                                    width: 80mm;
-                                    margin: 0;
-                                    padding: 0;
-                                }
-                            }
-
-                            body {
-                                font-family: Arial, sans-serif;
-                                font-size: 12px;
-                                padding: 15px;
-                                background: white;
-                            }
-
-                            h3, h4 {
-                                text-align: center;
-                                margin: 8px 0;
-                            }
-
-                            h3 {
-                                font-size: 16px;
-                                font-weight: bold;
-                            }
-
-                            h4 {
-                                font-size: 14px;
-                                border-bottom: 2px solid #000;
-                                padding-bottom: 5px;
-                            }
-
-                            .info-pedido {
-                                font-size: 11px;
-                                margin: 8px 0;
-                                line-height: 1.6;
-                            }
-
-                            .info-pedido strong {
-                                display: inline-block;
-                                width: 70px;
-                            }
-
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin: 15px 0;
-                            }
-
-                            table th, table td {
-                                border-bottom: 1px dashed #000;
-                                padding: 6px 0;
-                                font-size: 11px;
-                                text-align: left;
-                            }
-
-                            table th {
-                                font-weight: bold;
-                                background: #f5f5f5;
-                            }
-
-                            .total {
-                                margin-top: 15px;
-                                font-size: 14px;
-                                font-weight: bold;
-                                text-align: right;
-                                border-top: 2px solid #000;
-                                padding-top: 10px;
-                            }
-
-                            .rodape {
-                                text-align: center;
-                                margin-top: 20px;
-                                font-size: 10px;
-                                color: #666;
-                            }
+                            @media print { body { width: 80mm; margin: 0; padding: 0; } }
+                            body { font-family: Arial, sans-serif; font-size: 12px; padding: 15px; background: white; }
+                            h3, h4 { text-align: center; margin: 8px 0; }
+                            h3 { font-size: 16px; font-weight: bold; }
+                            h4 { font-size: 14px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                            .info-pedido { font-size: 11px; margin: 8px 0; line-height: 1.6; }
+                            .info-pedido strong { display: inline-block; width: 70px; }
+                            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                            table th, table td { border-bottom: 1px dashed #000; padding: 6px 0; font-size: 11px; text-align: left; }
+                            table th { font-weight: bold; background: #f5f5f5; }
+                            .total { margin-top: 15px; font-size: 14px; font-weight: bold; text-align: right; border-top: 2px solid #000; padding-top: 10px; }
+                            .rodape { text-align: center; margin-top: 20px; font-size: 10px; color: #666; }
                         </style>
                     </head>
                     <body>
                         <h3>Comanda de Pedido</h3>
                         <h4>PEDIDO #${pedido.id_pedido}</h4>
-                        <h4> Rua Dr. Potiguara Pereira de Miranda - Qd B 44
-                            Conjunto Benedito Bentes 1</h4>
-
+                        <h4>Rua Dr. Potiguara Pereira de Miranda - Qd B 44<br>Conjunto Benedito Bentes 1</h4>
                         <div class="info-pedido">
                             <div><strong>Cliente:</strong> ${pedido.nome_cliente}</div>
                             <div><strong>Telefone:</strong> ${pedido.telefone}</div>
                             <div><strong>Data:</strong> ${pedido.dt_registro}</div>
                         </div>
-
                         <table>
                             <thead>
                                 <tr>
                                     <th>Produto |</th>
                                     <th>Qtd |</th>
-                                    <th>Valor Unit.|</th>
+                                    <th>Valor Unit. |</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                ${linhasTabela}
-                            </tbody>
+                            <tbody>${linhasTabela}</tbody>
                         </table>
-
-                        <div class="total">
-                            TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}
-                        </div>
-
+                        <div class="total">TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}</div>
                         <div class="rodape">
                             <p>-----------------------------------</p>
                             <p>Documento sem valor fiscal</p>
                             <p>Obrigado pela preferência!</p>
                         </div>
                     </body>
-                    </html>
-                `);
+                    </html>`);
 
                 janela.document.close();
-
-                setTimeout(() => {
-                    janela.focus();
-                    janela.print();
-                }, 300);
+                setTimeout(() => { janela.focus(); janela.print(); }, 300);
             });
         }
     </script>

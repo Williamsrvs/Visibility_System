@@ -1063,17 +1063,17 @@ def enviar_whatsapp():
 def ger_pedidos():
     if request.method == 'GET':
         try:
-            conn = mysql.get_connection(); cur = conn.cursor(dictionary=True)
-            
-            # Captura os parâmetros de data
+            conn = mysql.get_connection()
+            cur = conn.cursor(dictionary=True)
+
             data_inicio = request.args.get('data_inicio')
             data_fim = request.args.get('data_fim')
-            
-            # Query base 
-            query = "SELECT * FROM vw_pedidos_fin"
+
+            query = """SELECT * FROM vw_pedidos_fin
+                    where date(dt_registro) >= curdate()
+            """  
             params = []
-            
-            # Adiciona filtros se as datas forem fornecidas
+
             if data_inicio and data_fim:
                 query += " WHERE DATE(dt_registro) BETWEEN %s AND %s"
                 params = [data_inicio, data_fim]
@@ -1083,30 +1083,40 @@ def ger_pedidos():
             elif data_fim:
                 query += " WHERE DATE(dt_registro) <= %s"
                 params = [data_fim]
-            
+
             query += " ORDER BY dt_registro DESC"
-            
-            # Executa a query com ou sem parâmetros
+
             if params:
                 cur.execute(query, params)
             else:
                 cur.execute(query)
-                
+
             pedidos = cur.fetchall()
             cur.close()
 
             total_valor = sum([p['valor_total'] for p in pedidos])
-            #somar a quantidade total de produtos vendidos da coluna quantidade
             qtde_total = len(set([p['id_pedido'] for p in pedidos]))
-            qtde_itens = sum([p['quantidade'] for p in pedidos])
+            qtde_itens = sum([p['qtde'] for p in pedidos])  
 
-            return render_template('ger_pedidos.html', pedidos=pedidos, total_valor=total_valor, qtde_total=qtde_total, qtde_itens=qtde_itens)
-            
+            return render_template(
+                'ger_pedidos.html',
+                pedidos=pedidos,
+                total_valor=total_valor,
+                qtde_total=qtde_total, 
+                qtde_itens=qtde_itens
+            )
+
         except Exception as e:
             logging.error(f"❌ Erro ao buscar pedidos: {e}")
-            return render_template('ger_pedidos.html', pedidos=[], qtde_total=0, qtde_itens=0)
-    
-    return render_template('ger_pedidos.html')
+            return render_template(
+                'ger_pedidos.html',
+                pedidos=[],
+                total_valor=0,     
+                qtde_total=0,
+                qtde_itens=0
+            )
+
+    return render_template('ger_pedidos.html', pedidos=[], total_valor=0, qtde_total=0, qtde_itens=0)
 
 
 @app.route('/pedidos_excel', methods=['GET'])
@@ -1456,6 +1466,35 @@ VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     finally:
         if cur:
             cur.close()
+
+# Criar uma rota para dar baixa nos pedidos enviados.
+
+# Substitua sua rota atual por esta:
+@app.route('/atualizar_status_pedido', methods=['POST'])
+def atualizar_status_pedido():
+    try:
+        dados       = request.get_json(force=True, silent=True)
+        id_pedido   = dados.get('id_pedido')
+        novo_status = dados.get('status')
+
+        status_validos = ['Pendente', 'Em producao', 'Cancelado', 'Finalizado']
+        if novo_status not in status_validos:
+            return jsonify({'sucesso': False, 'erro': 'Status inválido'}), 400
+
+        conn = mysql.get_connection()
+        cur  = conn.cursor()
+        cur.execute(
+            "UPDATE tbl_detalhes_pedido SET status_pedido = %s WHERE id_pedido = %s",
+            (novo_status, id_pedido)
+        )
+        conn.commit()
+        cur.close()
+
+        return jsonify({'sucesso': True})
+
+    except Exception as e:
+        logging.error(f"❌ Erro ao atualizar status: {e}")
+        return jsonify({'sucesso': False, 'erro': str(e)}), 500
 
 
 # Permite acesso por IP local da rede
