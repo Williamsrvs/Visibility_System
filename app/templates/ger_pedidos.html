@@ -14,20 +14,15 @@
             box-sizing: border-box;
         }
 
-    body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
-        url('https://raw.githubusercontent.com/Williamsrvs/imagens_sistemas/refs/heads/main/imagem%202.png');
-
-    background-repeat: no-repeat;
-    background-position: center bottom;
-    background-size: contain;
-
-    min-height: 100vh;
-    margin: 0;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.15) 0%, rgba(76, 201, 240, 0.15) 100%),
+                        url('https://i.postimg.cc/VNC52Dwv/cliente-2.png') no-repeat center center fixed;
+            background-size: cover;
+            background-blend-mode: overlay;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
         .header {
             text-align: center;
@@ -452,6 +447,7 @@
                         <th><i class="fas fa-money-check"></i> R$ Total</th>
                         <th><i class="fas fa-concierge-bell"></i> Tipo Serviço</th>
                         <th><i class="fas fa-phone"></i> Telefone</th>
+                        <th><i class="fas fa-product-hunt"></i> Produto</th>
                         <th><i class="fas fa-check-square"></i> Selecione</th>
                         <th><i class="fas fa-tasks"></i> Status</th>
                     </tr>
@@ -470,6 +466,7 @@
                             <td>{{ pedido.valor_total }}</td>
                             <td>{{ pedido.tipo_consumo }}</td>
                             <td>{{ pedido.telefone }}</td>
+                            <td>{{ pedido.nome_produto }}</td>
                             <td><input type="checkbox" name="pedidos" value="{{ pedido.id_pedido }}"></td>
                             <td>
                                 <select class="status-select status-{{ pedido.status_pedido | lower | replace(' ', '-') }}"
@@ -597,113 +594,171 @@
         }
 
         // ===== FUNÇÃO: Imprimir Pedidos Selecionados =====
+        // ===== FUNÇÃO: Imprimir Pedidos Selecionados =====
+        // Índices das colunas:
+        // 0=id_pedido | 1=dt_registro | 2=nome_cliente | 3=endereco | 4=bairro
+        // 5=form_pgmto | 6=qtde | 7=valor_total | 8=tipo_consumo | 9=telefone
+        // 10=nome_prod | 11=checkbox  | 12=select status
         function imprimirPedidosSelecionados() {
-            const pedidosSelecionados = document.querySelectorAll('input[name="pedidos"]:checked');
+    const pedidosSelecionados = document.querySelectorAll('input[name="pedidos"]:checked');
 
-            if (pedidosSelecionados.length === 0) {
-                alert('Selecione pelo menos um pedido para imprimir.');
-                return;
-            }
+    if (pedidosSelecionados.length === 0) {
+        alert('Selecione pelo menos um pedido para imprimir.');
+        return;
+    }
 
-            const pedidosAgrupados = {};
+    // Agrupa produtos pelo id_pedido
+    const pedidosAgrupados = {};
 
-            pedidosSelecionados.forEach((checkbox) => {
-                const idPedido = checkbox.value;
-                const linha = checkbox.closest('tr');
+    pedidosSelecionados.forEach((checkbox) => {
+        const idPedido = checkbox.value;
+        const linha    = checkbox.closest('tr');
 
-                const dadosProduto = {
-                    nome_prod:      linha.cells[1].textContent.trim(),
-                    valor_unitario: linha.cells[2].textContent.trim(),
-                    quantidade:     linha.cells[3].textContent.trim(),
-                    valor_total:    linha.cells[4].textContent.trim()
-                };
+        // Índices atualizados (nome_prod agora é coluna 10)
+        // 0=id | 1=data | 2=cliente | 3=end | 4=bairro | 5=pgmto
+        // 6=qtde | 7=total | 8=tipo | 9=tel | 10=nome_prod | 11=checkbox
+        const nome_prod   = linha.cells[10].textContent.trim();
+        const qtde        = linha.cells[6].textContent.trim();
+        const valor_total = linha.cells[7].textContent.trim();
 
-                if (!pedidosAgrupados[idPedido]) {
-                    pedidosAgrupados[idPedido] = {
-                        id_pedido:    idPedido,
-                        nome_cliente: linha.cells[5].textContent.trim(),
-                        telefone:     linha.cells[6].textContent.trim(),
-                        dt_registro:  linha.cells[7].textContent.trim(),
-                        produtos: []
-                    };
-                }
-
-                pedidosAgrupados[idPedido].produtos.push(dadosProduto);
-            });
-
-            Object.values(pedidosAgrupados).forEach((pedido) => {
-                const totalPedido = pedido.produtos.reduce((total, produto) => {
-                    const valor = parseFloat(produto.valor_total.replace('R$', '').replace(',', '.')) || 0;
-                    return total + valor;
-                }, 0);
-
-                const janela = window.open('', '_blank', 'width=400,height=600');
-
-                let linhasTabela = '';
-                pedido.produtos.forEach((produto) => {
-                    linhasTabela += `
-                        <tr>
-                            <td>${produto.nome_prod}</td>
-                            <td style="text-align:center;">${produto.quantidade}</td>
-                            <td style="text-align:right;">${produto.valor_unitario}</td>
-                            <td style="text-align:right;font-weight:bold;">${produto.valor_total}</td>
-                        </tr>`;
-                });
-
-                janela.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="pt-BR">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Pedido #${pedido.id_pedido}</title>
-                        <style>
-                            @media print { body { width: 80mm; margin: 0; padding: 0; } }
-                            body { font-family: Arial, sans-serif; font-size: 12px; padding: 15px; background: white; }
-                            h3, h4 { text-align: center; margin: 8px 0; }
-                            h3 { font-size: 16px; font-weight: bold; }
-                            h4 { font-size: 14px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-                            .info-pedido { font-size: 11px; margin: 8px 0; line-height: 1.6; }
-                            .info-pedido strong { display: inline-block; width: 70px; }
-                            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                            table th, table td { border-bottom: 1px dashed #000; padding: 6px 0; font-size: 11px; text-align: left; }
-                            table th { font-weight: bold; background: #f5f5f5; }
-                            .total { margin-top: 15px; font-size: 14px; font-weight: bold; text-align: right; border-top: 2px solid #000; padding-top: 10px; }
-                            .rodape { text-align: center; margin-top: 20px; font-size: 10px; color: #666; }
-                        </style>
-                    </head>
-                    <body>
-                        <h3>Comanda de Pedido</h3>
-                        <h4>PEDIDO #${pedido.id_pedido}</h4>
-                        <h4>Rua Dr. Potiguara Pereira de Miranda - Qd B 44<br>Conjunto Benedito Bentes 1</h4>
-                        <div class="info-pedido">
-                            <div><strong>Cliente:</strong> ${pedido.nome_cliente}</div>
-                            <div><strong>Telefone:</strong> ${pedido.telefone}</div>
-                            <div><strong>Data:</strong> ${pedido.dt_registro}</div>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Produto |</th>
-                                    <th>Qtd |</th>
-                                    <th>Valor Unit. |</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>${linhasTabela}</tbody>
-                        </table>
-                        <div class="total">TOTAL: R$ ${totalPedido.toFixed(2).replace('.', ',')}</div>
-                        <div class="rodape">
-                            <p>-----------------------------------</p>
-                            <p>Documento sem valor fiscal</p>
-                            <p>Obrigado pela preferência!</p>
-                        </div>
-                    </body>
-                    </html>`);
-
-                janela.document.close();
-                setTimeout(() => { janela.focus(); janela.print(); }, 300);
-            });
+        if (!pedidosAgrupados[idPedido]) {
+            pedidosAgrupados[idPedido] = {
+                id_pedido:    idPedido,
+                dt_registro:  linha.cells[1].textContent.trim(),
+                nome_cliente: linha.cells[2].textContent.trim(),
+                endereco:     linha.cells[3].textContent.trim(),
+                bairro:       linha.cells[4].textContent.trim(),
+                form_pgmto:   linha.cells[5].textContent.trim(),
+                tipo_consumo: linha.cells[8].textContent.trim(),
+                telefone:     linha.cells[9].textContent.trim(),
+                produtos: []
+            };
         }
-    </script>
+
+        // Adiciona cada produto ao pedido
+        pedidosAgrupados[idPedido].produtos.push({ nome_prod, qtde, valor_total });
+    });
+
+    // Imprime cada pedido agrupado
+    Object.values(pedidosAgrupados).forEach((pedido) => {
+
+        const totalGeral = pedido.produtos.reduce((acc, p) => {
+            return acc + (parseFloat(p.valor_total.replace(',', '.')) || 0);
+        }, 0).toFixed(2).replace('.', ',');
+
+        // Monta as linhas de itens
+        let linhasItens = '';
+        pedido.produtos.forEach((p) => {
+            linhasItens += `
+                <div class="item-linha">
+                    <span class="item-desc">${p.nome_prod}</span>
+                    <span class="item-qtde">${p.qtde}</span>
+                    <span class="item-total">R$ ${p.valor_total}</span>
+                </div>`;
+        });
+
+        const horaImpressao = new Date().toLocaleString('pt-BR');
+        const janela = window.open('', '_blank', 'width=340,height=720');
+
+        janela.document.write(`
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <title>Cupom #${pedido.id_pedido}</title>
+                <style>
+                    @page { size: 80mm auto; margin: 0; }
+                    @media print {
+                        body { width: 80mm; }
+                        .no-print { display: none !important; }
+                    }
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 11px;
+                        width: 80mm;
+                        background: white;
+                        color: #000;
+                        padding: 4mm 4mm 8mm 4mm;
+                    }
+                    .cupom-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 6px; }
+                    .loja-nome { font-size: 14px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+                    .loja-info { font-size: 9px; line-height: 1.6; margin-top: 3px; }
+                    .pedido-numero { text-align: center; font-size: 13px; font-weight: bold; border: 1px solid #000; padding: 4px; margin: 6px 0; letter-spacing: 2px; }
+                    .tipo-consumo { text-align: center; font-size: 10px; font-weight: bold; background: #000; color: #fff; padding: 3px 6px; margin-bottom: 6px; text-transform: uppercase; }
+                    .secao { border-bottom: 1px dashed #000; padding: 5px 0; margin-bottom: 5px; }
+                    .secao-titulo { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+                    .linha-dado { display: flex; justify-content: space-between; font-size: 10px; line-height: 1.7; gap: 4px; }
+                    .linha-dado .label { color: #444; white-space: nowrap; }
+                    .linha-dado .valor { font-weight: bold; text-align: right; word-break: break-word; }
+                    .itens-header { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 3px; }
+                    .item-linha { display: flex; justify-content: space-between; font-size: 10px; padding: 4px 0; border-bottom: 1px dotted #aaa; }
+                    .item-desc { flex: 1; padding-right: 4px; }
+                    .item-qtde { width: 20px; text-align: center; }
+                    .item-total { width: 28mm; text-align: right; font-weight: bold; }
+                    .total-box { border-top: 2px solid #000; margin-top: 6px; padding-top: 5px; }
+                    .total-linha { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
+                    .total-pgmto { font-size: 10px; margin-top: 4px; color: #333; }
+                    .cupom-footer { text-align: center; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #000; font-size: 9px; line-height: 1.8; color: #333; }
+                    .cupom-footer .obrigado { font-size: 11px; font-weight: bold; color: #000; margin-bottom: 2px; }
+                    .btn-imprimir { display: block; width: 100%; margin-top: 12px; padding: 10px; background: #000; color: white; border: none; font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; }
+                </style>
+            </head>
+            <body>
+                <div class="cupom-header">
+                    <div class="loja-nome">🍽️ Meu Estabelecimento</div>
+                    <div class="loja-info">
+                        Rua Dr. Potiguara Pereira de Miranda - Qd B 44<br>
+                        Conjunto Benedito Bentes 1 - Maceió/AL<br>
+                        Tel: (82) 99999-9999
+                    </div>
+                </div>
+
+                <div class="pedido-numero">★ PEDIDO Nº ${pedido.id_pedido} ★</div>
+                <div class="tipo-consumo">${pedido.tipo_consumo || 'Consumo no Local'}</div>
+
+                <div class="secao">
+                    <div class="secao-titulo">▸ Dados do Cliente</div>
+                    <div class="linha-dado"><span class="label">Cliente :</span><span class="valor">${pedido.nome_cliente}</span></div>
+                    <div class="linha-dado"><span class="label">Telefone:</span><span class="valor">${pedido.telefone}</span></div>
+                    ${pedido.endereco ? `<div class="linha-dado"><span class="label">Endereço:</span><span class="valor">${pedido.endereco}${pedido.bairro ? ' - ' + pedido.bairro : ''}</span></div>` : ''}
+                    <div class="linha-dado"><span class="label">Data    :</span><span class="valor">${pedido.dt_registro}</span></div>
+                </div>
+
+                <div class="secao">
+                    <div class="secao-titulo">▸ Itens do Pedido</div>
+                    <div class="itens-header">
+                        <span class="item-desc">Produto</span>
+                        <span class="item-qtde">Qtd</span>
+                        <span class="item-total">Total</span>
+                    </div>
+                    ${linhasItens}
+                </div>  
+
+                <div class="total-box">
+                    <div class="total-linha">
+                        <span>TOTAL A PAGAR</span>
+                        <span>R$ ${totalGeral}</span>
+                    </div>
+                    <div class="total-pgmto">Forma de Pagamento: ${pedido.form_pgmto}</div>
+                </div>
+
+                <div class="cupom-footer">
+                    <div class="obrigado">Obrigado pela preferência!</div>
+                    <div>Impresso em: ${horaImpressao}</div>
+                    <div>- - - - - - - - - - - - - - - - -</div>
+                    <div>** Documento sem valor fiscal **</div>
+                </div>
+
+                <button class="btn-imprimir no-print" onclick="window.print(); window.close();">
+                    🖨️ Imprimir Cupom
+                </button>
+            </body>
+            </html>`);
+
+        janela.document.close();
+        setTimeout(() => { janela.focus(); janela.print(); }, 400);
+    });
+}    </script>
 </body>
 </html>

@@ -103,18 +103,46 @@ CREATE TABLE u799109175_menu_prod.tbl_detalhes_pedido (
 
 CREATE OR REPLACE VIEW u799109175_menu_prod.vw_pedidos_fin AS
 SELECT
-    pe.id_pedido,
-    pr.nome_prod,
-    pr.valor AS valor_unitario,
-    pe.quantidade,
-    pe.valor_total,
-    pe.nome_cliente,
-    pe.telefone,
-    pe.dt_registro
-FROM u799109175_menu_prod.tbl_detalhes_pedido pe
-INNER JOIN u799109175_menu_prod.tbl_prod pr 
-    ON pr.id_prod = pe.id_prod
-ORDER BY pe.dt_registro DESC;
+    dp.id_pedido,
+    dp.id_prod,
+    p.nome_prod AS nome_produto,
+
+    dp.nome_cliente,
+    dp.telefone,
+    dp.dt_registro,
+    dp.endereco,
+    dp.bairro,
+
+    dp.status_pedido,
+
+    dp.form_pgmto,
+    dp.tipo_consumo,
+
+    SUM(dp.quantidade) AS qtde,
+    SUM(dp.valor_total) AS valor_total
+
+FROM u799109175_menu_prod.tbl_detalhes_pedido dp
+
+JOIN u799109175_menu_prod.tbl_prod p
+    ON dp.id_prod = p.id_prod
+
+JOIN u799109175_menu_prod.tbl_pedidos pe
+    ON dp.id_pedido = pe.id_pedido
+
+GROUP BY
+    dp.id_pedido,
+    dp.id_prod,
+    p.nome_prod,
+    dp.nome_cliente,s
+    dp.telefone,
+    dp.dt_registro,
+    dp.endereco,
+    dp.bairro,
+    pe.status_pedido,
+    dp.form_pgmto,
+    dp.tipo_consumo
+
+ORDER BY dp.dt_registro DESC;
 
 CREATE OR REPLACE VIEW u799109175_menu_prod.vw_resumo_pedidos_cliente AS
 SELECT

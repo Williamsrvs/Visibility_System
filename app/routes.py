@@ -1071,6 +1071,7 @@ def ger_pedidos():
 
             query = """SELECT * FROM vw_pedidos_fin
                     where date(dt_registro) >= curdate()
+                    
             """  
             params = []
 
