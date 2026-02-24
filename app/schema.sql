@@ -105,7 +105,7 @@ CREATE OR REPLACE VIEW u799109175_menu_prod.vw_pedidos_fin AS
 SELECT
     dp.id_pedido,
     dp.id_prod,
-    p.nome_prod AS nome_produto,
+    dp.nome_prod AS nome_produto,
 
     dp.nome_cliente,
     dp.telefone,
@@ -138,7 +138,7 @@ GROUP BY
     dp.dt_registro,
     dp.endereco,
     dp.bairro,
-    pe.status_pedido,
+    dp.status_pedido,
     dp.form_pgmto,
     dp.tipo_consumo
 
