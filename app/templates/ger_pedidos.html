@@ -601,6 +601,8 @@
         // 0=id_pedido | 1=dt_registro | 2=nome_cliente | 3=endereco | 4=bairro
         // 5=form_pgmto | 6=qtde | 7=valor_total | 8=tipo_consumo | 9=telefone
         // 10=nome_prod | 11=checkbox  | 12=select status
+
+
         function imprimirPedidosSelecionados() {
     const pedidosSelecionados = document.querySelectorAll('input[name="pedidos"]:checked');
 
@@ -616,12 +618,13 @@
         const idPedido = checkbox.value;
         const linha    = checkbox.closest('tr');
 
-        // Índices atualizados (nome_prod agora é coluna 10)
-        // 0=id | 1=data | 2=cliente | 3=end | 4=bairro | 5=pgmto
-        // 6=qtde | 7=total | 8=tipo | 9=tel | 10=nome_prod | 11=checkbox
-        const nome_prod   = linha.cells[10].textContent.trim();
+        // Índices: 0=id | 1=data | 2=cliente | 3=end | 4=bairro | 5=pgmto
+        //          6=qtde | 7=tx_entrega | 8=valor_total | 9=tipo_consumo
+        //          10=telefone | 11=nome_prod | 12=checkbox | 13=status
+        const nome_prod   = linha.cells[11].textContent.trim();
         const qtde        = linha.cells[6].textContent.trim();
-        const valor_total = linha.cells[7].textContent.trim();
+        const valor_total = linha.cells[8].textContent.trim();
+        const tx_entrega  = linha.cells[7].textContent.trim();
 
         if (!pedidosAgrupados[idPedido]) {
             pedidosAgrupados[idPedido] = {
@@ -631,24 +634,32 @@
                 endereco:     linha.cells[3].textContent.trim(),
                 bairro:       linha.cells[4].textContent.trim(),
                 form_pgmto:   linha.cells[5].textContent.trim(),
-                tipo_consumo: linha.cells[8].textContent.trim(),
-                telefone:     linha.cells[9].textContent.trim(),
+                tipo_consumo: linha.cells[9].textContent.trim(),
+                telefone:     linha.cells[10].textContent.trim(),
+                tx_entrega:   tx_entrega,
                 produtos: []
             };
         }
 
-        // Adiciona cada produto ao pedido
         pedidosAgrupados[idPedido].produtos.push({ nome_prod, qtde, valor_total });
     });
 
-    // Imprime cada pedido agrupado
+    // ✅ Tudo dentro do forEach — bug principal corrigido
     Object.values(pedidosAgrupados).forEach((pedido) => {
 
-        const totalGeral = pedido.produtos.reduce((acc, p) => {
+        // Soma subtotal dos produtos
+        const subtotal = pedido.produtos.reduce((acc, p) => {
             return acc + (parseFloat(p.valor_total.replace(',', '.')) || 0);
-        }, 0).toFixed(2).replace('.', ',');
+        }, 0);
 
-        // Monta as linhas de itens
+        // Taxa de entrega: R$ 6,00 fixo se Delivery
+        const isDelivery   = pedido.tipo_consumo.toLowerCase() === 'delivery';
+        const valorTaxa    = isDelivery ? 6.00 : 0;
+        const totalGeral   = (subtotal + valorTaxa).toFixed(2).replace('.', ',');
+        const subtotalFmt  = subtotal.toFixed(2).replace('.', ',');
+        const taxaFmt      = valorTaxa.toFixed(2).replace('.', ',');
+
+        // Monta linhas de itens — Bug 2 corrigido (nome_prod na coluna 11)
         let linhasItens = '';
         pedido.produtos.forEach((p) => {
             linhasItens += `
@@ -699,7 +710,8 @@
                     .item-qtde { width: 20px; text-align: center; }
                     .item-total { width: 28mm; text-align: right; font-weight: bold; }
                     .total-box { border-top: 2px solid #000; margin-top: 6px; padding-top: 5px; }
-                    .total-linha { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
+                    .total-linha { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+                    .total-linha.destaque { font-size: 13px; font-weight: bold; letter-spacing: 1px; border-top: 1px dashed #000; padding-top: 4px; margin-top: 4px; }
                     .total-pgmto { font-size: 10px; margin-top: 4px; color: #333; }
                     .cupom-footer { text-align: center; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #000; font-size: 9px; line-height: 1.8; color: #333; }
                     .cupom-footer .obrigado { font-size: 11px; font-weight: bold; color: #000; margin-bottom: 2px; }
@@ -708,11 +720,11 @@
             </head>
             <body>
                 <div class="cupom-header">
-                    <div class="loja-nome">🍽️ Meu Estabelecimento</div>
+                    <div class="loja-nome">🍽️ RESTAURANTE BOM TEMPERO</div>
                     <div class="loja-info">
-                        Rua Dr. Potiguara Pereira de Miranda - Qd B 44<br>
-                        Conjunto Benedito Bentes 1 - Maceió/AL<br>
-                        Tel: (82) 99999-9999
+                        AV. Tancredo Neves, S/N<br>
+                        Cidade Universitária - Maceió/AL<br>
+                        Tel: (82) 99689-2148
                     </div>
                 </div>
 
@@ -735,10 +747,19 @@
                         <span class="item-total">Total</span>
                     </div>
                     ${linhasItens}
-                </div>      
+                </div>
 
                 <div class="total-box">
                     <div class="total-linha">
+                        <span>Subtotal</span>
+                        <span>R$ ${subtotalFmt}</span>
+                    </div>
+                    ${isDelivery ? `
+                    <div class="total-linha">
+                        <span>Taxa de Entrega</span>
+                        <span>R$ ${taxaFmt}</span>
+                    </div>` : ''}
+                    <div class="total-linha destaque">
                         <span>TOTAL A PAGAR</span>
                         <span>R$ ${totalGeral}</span>
                     </div>
@@ -750,6 +771,7 @@
                     <div>Impresso em: ${horaImpressao}</div>
                     <div>- - - - - - - - - - - - - - - - -</div>
                     <div>** Documento sem valor fiscal **</div>
+                    <div>** Sistema Pedido Certo **</div>
                 </div>
 
                 <button class="btn-imprimir no-print" onclick="window.print(); window.close();">
@@ -760,7 +782,8 @@
 
         janela.document.close();
         setTimeout(() => { janela.focus(); janela.print(); }, 400);
-    });
-}    </script>
+    }); // ← fecha o forEach corretamente
+}
+    </script>
 </body>
 </html>

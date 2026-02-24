@@ -1097,14 +1097,16 @@ def ger_pedidos():
 
             total_valor = sum([p['valor_total'] for p in pedidos])
             qtde_total = len(set([p['id_pedido'] for p in pedidos]))
-            qtde_itens = sum([p['qtde'] for p in pedidos])  
+            qtde_itens = sum([p['qtde'] for p in pedidos])
+            
 
             return render_template(
                 'ger_pedidos.html',
                 pedidos=pedidos,
                 total_valor=total_valor,
                 qtde_total=qtde_total, 
-                qtde_itens=qtde_itens
+                qtde_itens=qtde_itens,
+                
             )
 
         except Exception as e:
@@ -1114,7 +1116,8 @@ def ger_pedidos():
                 pedidos=[],
                 total_valor=0,     
                 qtde_total=0,
-                qtde_itens=0
+                qtde_itens=0,
+                
             )
 
     return render_template('ger_pedidos.html', pedidos=[], total_valor=0, qtde_total=0, qtde_itens=0)
