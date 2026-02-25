@@ -3,284 +3,500 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Clientes</title>
+    <title>Cadastro de Cliente — Pedido Certo</title>
+    <meta name="robots" content="noindex,nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 10;
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --sidebar-w:           260px;
+            --color-bg:            #f4f6f9;
+            --color-surface:       #ffffff;
+            --color-primary:       #e85d04;
+            --color-primary-dark:  #c84e00;
+            --color-primary-light: #fff1ea;
+            --color-text:          #1a1a2e;
+            --color-muted:         #6b7280;
+            --color-border:        #e5e7eb;
+            --radius:              10px;
+            --shadow-sm:           0 1px 3px rgba(0,0,0,.08);
+            --shadow-md:           0 4px 16px rgba(0,0,0,.10);
+            --shadow-lg:           0 8px 32px rgba(0,0,0,.14);
+            --transition:          .22s ease;
         }
 
-    body {
-        background: url('https://i.postimg.cc/VNC52Dwv/cliente-2.png');
-        background-size: cover; /* Faz a imagem preencher a tela */
-        background-position: center; /* Centraliza */
-        background-repeat: no-repeat; /* Evita repetição */
-        min-height: 100vh;
-        margin: 10px;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-    }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+        }
 
-        /* Overlay para dar efeito de modal sobre o conteúdo */
-    .modal-overlay {
-        position: fixed;
-        padding: 80px;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: transparent;
-        backdrop-filter: none;
-        display: flex;
-        align-items: center;     /* Centraliza verticalmente */
-        justify-content: center; /* Centraliza horizontalmente */
-        z-index: 1000;
-}
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar-w); height: 100vh;
+            background: #1a1a2e;
+            display: flex; flex-direction: column;
+            z-index: 100;
+            box-shadow: 3px 0 24px rgba(0,0,0,.18);
+            transition: transform var(--transition);
+        }
 
+        .sidebar-brand {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
 
-        /* Container do modal */
-        .modal-container {
-            background: #20232b;
+        .sidebar-brand img { width: 140px; filter: brightness(1.1); }
+
+        .sidebar-badge {
+            font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+            color: var(--color-primary);
+            background: rgba(232,93,4,.12); border: 1px solid rgba(232,93,4,.25);
+            border-radius: 20px; padding: 3px 10px;
+        }
+
+        .sidebar-nav {
+            flex: 1; padding: 16px 14px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+
+        .nav-section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            color: rgba(255,255,255,.30); padding: 12px 8px 4px;
+        }
+
+        .nav-btn {
+            display: flex; align-items: center; gap: 12px;
+            width: 100%; padding: 10px 14px; border: none; border-radius: var(--radius);
+            background: transparent; color: rgba(255,255,255,.75);
+            font-family: inherit; font-size: 13.5px; font-weight: 600;
+            cursor: pointer; text-align: left; text-decoration: none;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,.07); color: #fff; }
+        .nav-btn.active { background: var(--color-primary-light); color: var(--color-primary); }
+        .nav-btn.active .icon { background: rgba(232,93,4,.15); }
+        .nav-btn.danger:hover { background: rgba(239,68,68,.12); color: #f87171; }
+
+        .nav-btn .icon {
+            width: 30px; height: 30px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; background: rgba(255,255,255,.06); flex-shrink: 0;
+        }
+
+        .nav-divider { height: 1px; background: rgba(255,255,255,.07); margin: 6px 0; }
+
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,.08); }
+        .sidebar-footer p { font-size: 11px; color: rgba(255,255,255,.25); text-align: center; line-height: 1.5; }
+
+        /* Mobile */
+        .menu-toggle {
+            display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+            width: 42px; height: 42px; border: none; border-radius: var(--radius);
+            background: #1a1a2e; color: #fff; font-size: 20px; cursor: pointer;
+            box-shadow: var(--shadow-md); align-items: center; justify-content: center;
+        }
+
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.45); z-index: 99; backdrop-filter: blur(2px);
+        }
+
+        /* ── Main ── */
+        .main {
+            margin-left: var(--sidebar-w); flex: 1;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: var(--color-surface);
+            padding: 18px 28px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar h1 { font-size: 20px; font-weight: 800; color: var(--color-text); }
+        .topbar h1 span { color: var(--color-primary); }
+
+        .topbar-back {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 700; color: var(--color-muted);
+            text-decoration: none; padding: 7px 14px;
+            border: 1.5px solid var(--color-border); border-radius: 8px;
+            transition: all var(--transition);
+        }
+
+        .topbar-back:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-light); }
+
+        /* ── Content ── */
+        .content {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 36px 28px;
+        }
+
+        /* ── Form card ── */
+        .form-card {
+            background: var(--color-surface);
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 90vw;
-            max-width: 400px;
-            min-width: 320px;
-            animation: slideIn 0.3s ease-out;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 600px;
             overflow: hidden;
-            position: relative;
-            align-items: flex-end;
-            padding: auto;
-            height: auto;
-            
-            
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 100;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Card head com acento */
+        .form-card-header {
+            padding: 28px 32px 22px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        /* Cabeçalho */
-        .modal-header {
-            background: #20232b;
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .form-card-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: var(--color-primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
         }
 
-        .modal-header h1 {
-            font-size: 40px;
-            font-weight: 600;
-            margin-bottom: 5px;
+        .form-card-header-text h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--color-text);
         }
 
-        .modal-header p {
-            font-size: 20px;
-            opacity: 0.9;
+        .form-card-header-text p {
+            font-size: 13px;
+            color: var(--color-muted);
+            margin-top: 2px;
         }
 
-        /* Corpo do formulário */
-        .modal-body {
-            padding: 35px 30px;
+        /* Card body */
+        .form-card-body { padding: 28px 32px 32px; }
+
+        /* Section dividers inside form */
+        .form-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--color-muted);
+            margin-bottom: 12px;
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .form-section-label:first-child { margin-top: 0; }
+
+        .form-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
         }
+
+        /* Form elements */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-of-type { margin-bottom: 0; }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: var(--color-muted); margin-bottom: 5px;
         }
 
         .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            width: 100%; padding: 10px 13px;
+            border: 1.5px solid var(--color-border); border-radius: 8px;
+            font-family: inherit; font-size: 14px; color: var(--color-text);
+            background: var(--color-bg); outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
         }
 
         .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(232,93,4,.12);
+            background: #fff;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 15px;
+        .form-group input::placeholder { color: #b0b8c4; }
+
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 80px; gap: 14px; }
+
+        /* Input with icon */
+        .input-wrap { position: relative; }
+
+        .input-wrap .input-icon {
+            position: absolute;
+            left: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 15px; pointer-events: none;
         }
 
-        /* Botão */
+        .input-wrap input { padding-left: 36px; }
+
+        /* Submit */
         .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            width: 100%; padding: 13px;
+            background: var(--color-primary); color: #fff;
+            border: none; border-radius: 10px;
+            font-family: inherit; font-size: 15px; font-weight: 800;
+            cursor: pointer; margin-top: 24px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background var(--transition), transform .12s, box-shadow var(--transition);
+            box-shadow: 0 3px 10px rgba(232,93,4,.35);
         }
 
         .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(232,93,4,.45);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
+        .btn-submit:active { transform: translateY(0); }
+
+        /* Cancel link */
+        .btn-cancel-link {
+            display: block; text-align: center;
+            margin-top: 14px;
+            font-size: 13px; font-weight: 700;
+            color: var(--color-muted); text-decoration: none;
+            transition: color var(--transition);
         }
 
-        /* Botão fechar */
-        .btn-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.3s ease;
-        }   
+        .btn-cancel-link:hover { color: var(--color-primary); }
 
-        .btn-close:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .menu-toggle { display: flex; }
+            .main { margin-left: 0; }
+            .topbar { padding: 14px 16px; padding-left: 64px; }
+            .content { padding: 20px 16px; align-items: flex-start; }
+            .form-card-header { padding: 22px 20px 18px; }
+            .form-card-body { padding: 20px 20px 24px; }
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .form-grid-3 { grid-template-columns: 1fr 1fr; }
+            .form-grid-3 > :last-child { grid-column: 1; }
         }
-
-        /* Responsivo */
-        @media (max-width: 600px) {
-            .modal-container {
-                margin: 20px;
-                align-items: center;
-            }
-
-            .modal-body {
-                padding: 25px 20px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-    .footer {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: 500;
-            margin-top: auto;
-            height: auto;
-            width: auto ;
-            }
-
     </style>
 </head>
 <body>
-    <div class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <button class="btn-close" onclick="closeModal()" title="Fechar">×</button>
-                <h1>Cadastro de Cliente</h1>
-                <p>Preencha os dados abaixo</p>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/logo%20pedido%20certo.png" alt="Pedido Certo">
+        <span class="sidebar-badge">Cadastro de Cliente</span>
+    </div>
+
+    <div class="sidebar-nav">
+        <span class="nav-section-label">Cadastros</span>
+
+        <a href="/cliente" class="nav-btn active">
+            <span class="icon">📃</span> Cadastro de Cliente
+        </a>
+        <a href="/produto" class="nav-btn">
+            <span class="icon">➕</span> Cadastro de Produto
+        </a>
+        <a href="entregadores" class="nav-btn">
+            <span class="icon">🛵</span> Cadastro de Entregador
+        </a>
+        <a href="/cadastrar_usuario" class="nav-btn">
+            <span class="icon">🔑</span> Cadastrar Usuários
+        </a>
+
+        <div class="nav-divider"></div>
+        <span class="nav-section-label">Gerenciamento</span>
+
+        <a href="/ger_clientes" class="nav-btn">
+            <span class="icon">🔝</span> Gerenciar Clientes
+        </a>
+        <a href="/ger_pedidos" class="nav-btn">
+            <span class="icon">📦</span> Gerenciar Pedidos
+        </a>
+        <a href="/pedidos" class="nav-btn">
+            <span class="icon">🛒</span> Fazer Pedidos (PDV)
+        </a>
+
+        <div class="nav-divider"></div>
+        <span class="nav-section-label">Conta</span>
+
+        <a href="/lojista" class="nav-btn">
+            <span class="icon">🏠</span> Início
+        </a>
+        <a href="/" class="nav-btn danger">
+            <span class="icon">🚪</span> Sair
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <p>&copy; 2025 Date Analytics<br>Todos os direitos reservados</p>
+    </div>
+</nav>
+
+<!-- ── Main ── -->
+<main class="main">
+
+    <div class="topbar">
+        <h1>👤 Cadastro de <span>Cliente</span></h1>
+        <a href="/lojista" class="topbar-back">🏠 Voltar ao Início</a>
+    </div>
+
+    <div class="content">
+        <div class="form-card">
+
+            <div class="form-card-header">
+                <div class="form-card-icon">👤</div>
+                <div class="form-card-header-text">
+                    <h2>Novo Cliente</h2>
+                    <p>Preencha os dados para cadastrar um novo cliente no sistema</p>
+                </div>
             </div>
-            
-            <div class="modal-body">
-                <form action="/cliente" method="POST">
+
+            <div class="form-card-body">
+                <form action="/cliente" method="POST" id="clienteForm">
+
+                    <!-- Identificação -->
+                    <div class="form-section-label">Identificação</div>
+
                     <div class="form-group">
                         <label for="nome_cliente">Nome Completo</label>
-                        <input type="text" id="nome_cliente" name="nome_cliente" placeholder="Digite o nome completo" required>
+                        <div class="input-wrap">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="nome_cliente" name="nome_cliente" placeholder="Digite o nome completo" required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="telefone">Telefone</label>
-                        <input type="tel" id="telefone" name="telefone" placeholder="Digite o telefone" required>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="telefone">Telefone / WhatsApp</label>
+                            <div class="input-wrap">
+                                <span class="input-icon">📱</span>
+                                <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" maxlength="15" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <div class="input-wrap">
+                                <span class="input-icon">✉️</span>
+                                <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
-                    </div>
+                    <!-- Endereço -->
+                    <div class="form-section-label">Endereço</div>
 
                     <div class="form-group">
-                        <label for="endereco">Endereço</label>
-                        <input type="text" id="endereco" name="endereco" placeholder="Rua, número" required>
+                        <label for="endereco">Logradouro</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">🏠</span>
+                            <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida... e número" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="bairro">Bairro</label>
-                        <input type="text" id="bairro" name="bairro" placeholder="Nome do bairro" required>
+                        <div class="input-wrap">
+                            <span class="input-icon">📍</span>
+                            <input type="text" id="bairro" name="bairro" placeholder="Nome do bairro" required>
+                        </div>
                     </div>
 
-                    <div class="form-row">
+                    <div class="form-grid-3">
                         <div class="form-group">
                             <label for="cidade">Cidade</label>
                             <input type="text" id="cidade" name="cidade" placeholder="Cidade" required>
                         </div>
-
                         <div class="form-group">
-                            <label for="uf">UF</label>
-                            <input type="text" id="uf" name="uf" placeholder="UF" maxlength="2" required>
+                            <label for="uf">Estado</label>
+                            <input type="text" id="uf" name="uf" placeholder="UF" maxlength="2" required
+                                style="text-transform:uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep" placeholder="00000-000" maxlength="9">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Cadastrar Cliente</button>
-                    
+                    <!-- Submit -->
+                    <button type="submit" class="btn-submit">
+                        ✅ Cadastrar Cliente
+                    </button>
+
+                    <a href="/lojista" class="btn-cancel-link">← Cancelar e voltar</a>
+
                 </form>
             </div>
+
         </div>
     </div>
 
-    <script>
-        function closeModal() {
-            window.location.href = '/'; // Redireciona para a tela index
-        }
+</main>
 
-        // Fechar modal ao clicar fora dele
-        document.querySelector('.modal-overlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
+<script>
+    /* ── Sidebar mobile ── */
+    const sidebar    = document.getElementById('sidebar');
+    const overlay    = document.getElementById('sidebarOverlay');
+    const menuToggle = document.getElementById('menuToggle');
 
-        // Fechar modal com a tecla ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-    </script>
-    <footer class="footer">
-        © 2025 Date Analytics. Todos os direitos reservados.
-    </footer>
+    menuToggle.addEventListener('click', () => sidebar.classList.contains('active') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    function openSidebar()  { sidebar.classList.add('active');    overlay.classList.add('active'); }
+    function closeSidebar() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+
+    /* ── Máscara telefone ── */
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length <= 10) v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        else                v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+        e.target.value = v;
+    });
+
+    /* ── Máscara CEP ── */
+    document.getElementById('cep').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        v = v.replace(/^(\d{5})(\d{0,3}).*/, '$1-$2');
+        e.target.value = v;
+    });
+
+    /* ── UF uppercase ── */
+    document.getElementById('uf').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    /* ── Fechar com ESC ── */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') window.location.href = '/lojista';
+    });
+</script>
+
 </body>
 </html>

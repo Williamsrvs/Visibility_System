@@ -3,347 +3,936 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos</title>
+    <title>Produtos — Pedido Certo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/produto.css') }}">
     <meta name="robots" content="noindex,nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & Base ───────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --sidebar-w: 260px;
+            --color-bg:       #f4f6f9;
+            --color-surface:  #ffffff;
+            --color-primary:  #e85d04;
+            --color-primary-dark: #c84e00;
+            --color-primary-light: #fff1ea;
+            --color-text:     #1a1a2e;
+            --color-muted:    #6b7280;
+            --color-border:   #e5e7eb;
+            --color-success:  #22c55e;
+            --color-danger:   #ef4444;
+            --radius:         10px;
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.10);
+            --shadow-lg:      0 8px 32px rgba(0,0,0,.14);
+            --transition:     .22s ease;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ── Sidebar ────────────────────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 3px 0 24px rgba(0,0,0,.18);
+            transition: transform var(--transition);
+        }
+
+        .sidebar-brand {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand img {
+            width: 140px;
+            height: auto;
+            filter: brightness(1.1);
+        }
+
+        .sidebar-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            background: rgba(232,93,4,.12);
+            border: 1px solid rgba(232,93,4,.25);
+            border-radius: 20px;
+            padding: 3px 10px;
+        }
+
+        /* Nav groups */
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.30);
+            padding: 14px 8px 6px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 11px 14px;
+            border: none;
+            border-radius: var(--radius);
+            background: transparent;
+            color: rgba(255,255,255,.75);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: background var(--transition), color var(--transition), transform .12s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,.07);
+            color: #fff;
+        }
+
+        .nav-btn.primary {
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(232,93,4,.35);
+        }
+
+        .nav-btn.primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(232,93,4,.45);
+        }
+
+        .nav-btn.danger:hover {
+            background: rgba(239,68,68,.12);
+            color: #f87171;
+        }
+
+        .nav-btn .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: rgba(255,255,255,.06);
+            flex-shrink: 0;
+        }
+
+        .nav-btn.primary .icon {
+            background: rgba(255,255,255,.18);
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,.07);
+            margin: 8px 0;
+        }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        .sidebar-footer p {
+            font-size: 11px;
+            color: rgba(255,255,255,.25);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Mobile toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 14px; left: 14px;
+            z-index: 200;
+            width: 42px; height: 42px;
+            border: none;
+            border-radius: var(--radius);
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Overlay mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+        }
+
+        /* ── Main content ───────────────────────────────────────── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 32px 28px;
+            min-height: 100vh;
+        }
+
+        /* Page header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-text);
+        }
+
+        .page-header h1 span {
+            color: var(--color-primary);
+        }
+
+        /* ── Layout: form + cards ───────────────────────────────── */
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ── Form Card ──────────────────────────────────────────── */
+        .form-card {
+            background: var(--color-surface);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 26px 22px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .form-card h2 {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-card h2::before {
+            content: '';
+            display: block;
+            width: 4px; height: 18px;
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--color-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--color-text);
+            background: var(--color-bg);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(232,93,4,.12);
+            background: #fff;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 11px;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background var(--transition), transform .12s, box-shadow var(--transition);
+            box-shadow: 0 2px 8px rgba(232,93,4,.35);
+        }
+
+        .btn-submit:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(232,93,4,.45);
+        }
+
+        /* ── Product grid ───────────────────────────────────────── */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--color-surface);
+            border-radius: 14px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow var(--transition), transform var(--transition);
+        }
+
+        .product-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+        }
+
+        .placeholder-img {
+            width: 100%;
+            height: 170px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .product-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 8px;
+        }
+
+        .product-body h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--color-text);
+            line-height: 1.3;
+        }
+
+        .product-body .desc {
+            font-size: 12.5px;
+            color: var(--color-muted);
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .product-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .tag-group {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .tag-promo {
+            background: #fef9c3;
+            color: #ca8a04;
+        }
+
+        .tag-promo.no-promo {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        .product-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--color-primary);
+        }
+
+        .pay-method {
+            font-size: 11px;
+            color: var(--color-muted);
+            font-weight: 600;
+        }
+
+        /* Visibility toggle */
+        .visibility-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: var(--color-bg);
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        .visibility-row input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .visibility-row label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-muted);
+            cursor: pointer;
+        }
+
+        /* Card actions */
+        .product-actions {
+            padding: 12px 16px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .btn-edit {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid var(--color-primary);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--color-primary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .btn-edit:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--color-muted);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* ── Modal ──────────────────────────────────────────────── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 30px 26px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-content h3 {
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-content h3::before {
+            content: '';
+            display: block;
+            width: 4px; height: 18px;
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 10px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--color-muted);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background var(--transition);
+        }
+
+        .btn-cancel:hover {
+            background: var(--color-bg);
+        }
+
+        /* ── Responsive ─────────────────────────────────────────── */
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .form-card {
+                position: static;
+                display: none;
+            }
+            .form-card.show {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+            .main {
+                margin-left: 0;
+                padding: 70px 16px 24px;
+            }
+            .products {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Botão Mobile Menu -->
-    <button class="menu_toggle" onclick="toggleMenu()">☰</button>
+<!-- Mobile toggle -->
+<button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
 
-    <!-- Sidebar lateral -->
-    <nav class="sidebar_menu" id="sidebar">
-        
-        <div class="sidebar_header">
-            <h2>Menu Navegação</h2>
-                </div>
-            <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/logo%20pedido%20certo.png" alt="Logo Date Analytics" class="sidebar_logo" style="height: auto; margin-bottom: 10px;">    
-            
-        
-        <div class="menu_list">
-            <button id="toggleFormBtn" class="btn" >➕ Adicionar produto</button>
-            <button id="homeBtn" onclick="window.location.href='/produto_excel'" class="btn">⏬ Lista Produtos</button>
-            <button id="logoutBtn" onclick="window.location.href='/lojista'" class="btn">❌ Sair</button>
-        </div>
-        <footer class="sidebar_footer">
-            <p>&copy; 2025 Todos os direitos reservados, Date Analytics</p>
-        </footer>
-    </nav>
-<div class="container">
-    <div class="header">
-        
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+
+    <div class="sidebar-brand">
+        <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/logo%20pedido%20certo.png" alt="Pedido Certo">
+        <span class="sidebar-badge">Painel do Lojista</span>
     </div>
+
+    <div class="sidebar-nav">
+
+        <span class="nav-section-label">Produtos</span>
+
+        <button id="toggleFormBtn" class="nav-btn primary">
+            <span class="icon">➕</span>
+            Adicionar Produto
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='/produto_excel'">
+            <span class="icon">⬇️</span>
+            Lista de Produtos
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <span class="nav-section-label">Conta</span>
+
+        <button class="nav-btn danger" onclick="window.location.href='/lojista'">
+            <span class="icon">🚪</span>
+            Sair
+        </button>
+
+    </div>
+
+    <div class="sidebar-footer">
+        <p>&copy; 2025 Date Analytics<br>Todos os direitos reservados</p>
+    </div>
+
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────────────── -->
+<main class="main">
+
+    <header class="page-header">
+        <h1>Meus <span>Produtos</span></h1>
+    </header>
 
     <div class="layout">
-    <!-- Formulário lateral -->
-    <aside class="form-card" id="productForm" aria-labelledby="form-title">
-        <h2 id="form-title">Adicionar produto</h2>
-        <form action="/produto" method="POST" enctype="multipart/form-data">
-        <div class="form-row">
-            <div class="col">
-            <label for="nome_prod">Nome</label>
-            <input id="nome_prod" type="text" name="nome_prod" placeholder="Nome do produto" required>
-            </div>
-        </div>
 
-        <div style="margin-top:10px">
-            <label for="descricao">Descrição</label>
-            <textarea id="descricao" name="descricao" placeholder="Descrição" required></textarea>
-        </div>
+        <!-- Formulário -->
+        <aside class="form-card" id="productForm" aria-labelledby="form-title">
+            <h2 id="form-title">Adicionar Produto</h2>
+            <form action="/produto" method="POST" enctype="multipart/form-data">
 
-        <div style="margin-top:10px">
-    <label for="subgrupo">Subgrupo</label>
-    <select id="subgrupo" name="subgrupo" required class="form-control">
-    <option value="">Selecione um subgrupo</option>
-    <option value="Prato da Casa">Prato da Casa</option>
-    <option value="Acompanhamento">Acompanhamento</option>
-    <option value="Sobremesa">Sobremesa</option>
-    <option value="Porção">Porção</option>
-    <option value="Peixada">Peixada</option>
-    <option value="Bebidas">Bebidas</option>
-    <option value="Quentinha">Quentinha (M)</option>
-    <option value="Quentinha">Quentinha (G)</option>
+                <div class="form-group">
+                    <label for="nome_prod">Nome</label>
+                    <input id="nome_prod" type="text" name="nome_prod" placeholder="Nome do produto" required>
+                </div>
 
-    </select>
-    </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" placeholder="Descreva o produto..." required></textarea>
+                </div>
 
-    <div style="margin-top:10px">
-    <label for="status_promocao">Status Promoção</label>
-    <select id="status_promocao" name="status_promocao" required class="form-control">
-    <option value="">Selecione um Status</option>
-    <option value="Promoção da casa">Promoção da casa</option>
-    <option value="Black Friday">Black Friday</option>
-    <option value="Sem promoção">Sem promoção</option>
-    </select>
-    </div>
+                <div class="form-group">
+                    <label for="subgrupo">Subgrupo</label>
+                    <select id="subgrupo" name="subgrupo" required>
+                        <option value="">Selecione um subgrupo</option>
+                        <option value="Prato da Casa">Prato da Casa</option>
+                        <option value="Acompanhamento">Acompanhamento</option>
+                        <option value="Sobremesa">Sobremesa</option>
+                        <option value="Porção">Porção</option>
+                        <option value="Peixada">Peixada</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Quentinha (M)">Quentinha (M)</option>
+                        <option value="Quentinha (G)">Quentinha (G)</option>
+                    </select>
+                </div>
 
+                <div class="form-group">
+                    <label for="status_promocao">Status Promoção</label>
+                    <select id="status_promocao" name="status_promocao" required>
+                        <option value="">Selecione um status</option>
+                        <option value="Promoção da casa">Promoção da casa</option>
+                        <option value="Black Friday">Black Friday</option>
+                        <option value="Sem promoção">Sem promoção</option>
+                    </select>
+                </div>
 
-        <div class="form-row" style="margin-top:10px">
-            <div class="col">
-            <label for="valor">Valor (R$)</label>
-            <input id="valor" type="number" step="0.01" name="valor" placeholder="0.00" required>
-            </div>
-            <div class="col">
-            <label for="form_pgmto">Forma de pagamento</label>
-            <input id="form_pgmto" type="text" name="form_pgmto" placeholder="Cartão / Pix / Dinheiro" required>
-            </div>
-        </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="valor">Valor (R$)</label>
+                        <input id="valor" type="number" step="0.01" name="valor" placeholder="0,00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_pgmto">Pagamento</label>
+                        <input id="form_pgmto" type="text" name="form_pgmto" placeholder="Pix / Cartão" required>
+                    </div>
+                </div>
 
-        <div style="margin-top:10px">
-            <label for="imagem_url">Imagem</label>
-            <input id="imagem_url" type="file" name="imagem_url" accept="image/*">
-        </div>
+                <div class="form-group">
+                    <label for="imagem_url">Imagem</label>
+                    <input id="imagem_url" type="file" name="imagem_url" accept="image/*">
+                </div>
 
-        <button class="btn-submit" type="submit">Salvar produto</button>
-        </form>
-    </aside>
+                <button class="btn-submit" type="submit">💾 Salvar Produto</button>
+            </form>
+        </aside>
 
-    <!-- Lista de produtos -->
-    <section class="products" aria-live="polite">
-        {% if produtos is defined and produtos %}
-        {% for p in produtos %}
+        <!-- Lista de produtos -->
+        <section class="products" aria-live="polite">
+            {% if produtos is defined and produtos %}
+            {% for p in produtos %}
             <article class="product-card">
-            {% if p.imagem_url %}
+
+                {% if p.imagem_url %}
                 <img src="data:image/jpeg;base64,{{ p.imagem_url|b64encode }}" alt="{{ p.nome_prod }}">
-            {% else %}
-                <div class="placeholder">Sem imagem</div>
-            {% endif %}
-            <div class="product-info">
-                <h3>{{ p.nome_prod }}</h3>
-                <p class="desc">{{ p.descricao }}</p>
-                <p class="subgrupo"><strong>Grupo:</strong> {{ p.subgrupo }}</p>
-                <p class="promocao"><strong>Promoção do Dia:</strong> <span>{{ p.status_promocao }}</span></p>
-                <div class="meta">
-                <span class="price">R$ {{ "%.2f"|format(p.valor|float) }}</span>
-                <span class="pay">{{ p.form_pgmto }}</span>
-                </div>
-                <div class="actions">
-                <button onclick="editarProduto({{ p.id_prod }})" class="btn-action edit">Editar</button>
-                
-                </div>
-                <div class="visibility-control" style="margin-top: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
-                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 12px;">
-                        <input type="checkbox" id="visible{{ p.id_prod }}" 
+                {% else %}
+                <div class="placeholder-img">📷 Sem imagem</div>
+                {% endif %}
+
+                <div class="product-body">
+                    <h3>{{ p.nome_prod }}</h3>
+                    <p class="desc">{{ p.descricao }}</p>
+
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <span class="product-tag tag-group">{{ p.subgrupo }}</span>
+                        <span class="product-tag tag-promo {% if p.status_promocao == 'Sem promoção' %}no-promo{% endif %}">
+                            {{ p.status_promocao }}
+                        </span>
+                    </div>
+
+                    <div class="product-meta">
+                        <span class="price">R$ {{ "%.2f"|format(p.valor|float) }}</span>
+                        <span class="pay-method">{{ p.form_pgmto }}</span>
+                    </div>
+
+                    <div class="visibility-row">
+                        <input type="checkbox" id="visible{{ p.id_prod }}"
                             {% if p.ativo == 1 %}checked{% endif %}
-                            onchange="toggleVisibilidade({{ p.id_prod }}, this.checked)"
-                            style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
-                        <span>{% if p.ativo == 1 %}✅ Visível no índice{% else %}🚫 Oculto do índice{% endif %}</span>
-                    </label>
+                            onchange="toggleVisibilidade({{ p.id_prod }}, this.checked)">
+                        <label for="visible{{ p.id_prod }}" id="visibleLabel{{ p.id_prod }}">
+                            {% if p.ativo == 1 %}✅ Visível no índice{% else %}🚫 Oculto do índice{% endif %}
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Modal de edição -->
-            <div id="editModal{{ p.id_prod }}" class="modal">
-                <div class="modal-content">
-                <h3>Editar Produto</h3>
-                <form id="editForm{{ p.id_prod }}" onsubmit="atualizarProduto(event, {{ p.id_prod }}); return false;">
-                    <div class="form-row">
-                    <div class="col">
-                        <label for="edit_nome{{ p.id_prod }}">Nome:</label>
-                        <input type="text" id="edit_nome{{ p.id_prod }}" name="nome_prod" value="{{ p.nome_prod }}" required>
-                    </div>
-                    </div>
-                    <div class="form-row">
-                    <div class="col">
-                        <label for="edit_desc{{ p.id_prod }}">Descrição:</label>
-                        <textarea id="edit_desc{{ p.id_prod }}" name="descricao" required>{{ p.descricao }}</textarea>
-                    </div>
-                    </div>
-
-                    <div class="form-row">
-        <div class="col">
-            <label for="edit_subgrupo{{ p.id_prod }}">Subgrupo:</label>
-            <select id="edit_subgrupo{{ p.id_prod }}" name="subgrupo" required class="form-control">
-            <option value="">Selecione um subgrupo</option>
-            <option value="Prato da Casa" {% if p.subgrupo == 'Prato da Casa' %}selected{% endif %}>Prato da Casa</option>
-            <option value="Acompanhamento" {% if p.subgrupo == 'Acompanhamento' %}selected{% endif %}>Acompanhamento</option>
-            <option value="Sobremesa" {% if p.subgrupo == 'Sobremesa' %}selected{% endif %}>Sobremesa</option>
-            <option value="Peixada" {% if p.subgrupo == 'Peixada' %}selected{% endif %}>Peixada</option>
-            <option value="Quentinha (M)" {% if p.subgrupo == 'Quentinha (M)' %}selected{% endif %}>Quentinha (M)</option>
-            <option value="Quentinha (G)" {% if p.subgrupo == 'Quentinha (G)' %}selected{% endif %}>Quentinha (G)</option>
-            <option value="Porção" {% if p.subgrupo == 'Porção' %}selected{% endif %}>Porção</option>
-        
-        
-        </select>
-        </div>
-        </div>
-        
-                    <div class="form-row">
-        <div class="col">
-            <label for="edit_status_promocao{{ p.id_prod }}">Status Promoção:</label>
-            <select id="edit_status_promocao{{ p.id_prod }}" name="status_promocao" required class="form-control">
-            <option value="">Selecione um Status</option>
-            <option value="Promoção da casa" {% if p.status_promocao == 'Promoção da casa' %}selected{% endif %}>Promoção da casa</option>
-            <option value="Black Friday" {% if p.status_promocao == 'Black Friday' %}selected{% endif %}>Black Friday</option>
-            <option value="Sem promoção" {% if p.status_promocao == 'Sem promoção' %}selected{% endif %}>Sem promoção</option>
-        </select>
-        </div>
-                    </div>
-
-                    <div class="form-row">
-        <div class="col">
-        <label for="edit_valor{{ p.id_prod }}">Valor:</label>
-        <input type="number" step="0.01" id="edit_valor{{ p.id_prod }}" name="valor" value="{{ p.valor }}" required>
-                    </div>
-                    <div class="col">
-                        <label for="edit_pgto{{ p.id_prod }}">Forma de Pagamento:</label>
-                        <input type="text" id="edit_pgto{{ p.id_prod }}" name="form_pgmto" value="{{ p.form_pgmto }}" required>
-                    </div>
-                    </div>
-                    <div class="form-row">
-                    <div class="col">
-                        <label for="edit_img{{ p.id_prod }}">Nova Imagem:</label>
-                        <input type="file" id="edit_img{{ p.id_prod }}" name="imagem_url" accept="image/*">
-                    </div>
-                    </div>
-                    <div class="modal-buttons">
-                    <button type="submit" class="btn-submit">Salvar</button>
-                    <button type="button" onclick="fecharModal({{ p.id_prod }})" class="btn-cancel">Cancelar</button>
-                    </div>
-                </form>
+                <div class="product-actions">
+                    <button onclick="editarProduto({{ p.id_prod }})" class="btn-edit">✏️ Editar Produto</button>
                 </div>
-            </div>
+
             </article>
-        {% endfor %}
-        {% else %}
-        <p class="empty">Nenhum produto cadastrado.</p>
-        {% endif %}
-    </section>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <p>📦 Nenhum produto cadastrado ainda.<br>Clique em "Adicionar Produto" para começar.</p>
+            </div>
+            {% endif %}
+        </section>
 
+    </div>
+</main>
+
+<!-- ── Modais de edição (fora do product-card para evitar bug de transform/fixed) ── -->
+{% if produtos is defined and produtos %}
+{% for p in produtos %}
+<div id="editModal{{ p.id_prod }}" class="modal">
+    <div class="modal-content">
+        <h3>Editar Produto</h3>
+        <form id="editForm{{ p.id_prod }}" onsubmit="atualizarProduto(event, {{ p.id_prod }}); return false;">
+
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" name="nome_prod" value="{{ p.nome_prod }}" required>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea name="descricao" required>{{ p.descricao }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Subgrupo</label>
+                <select name="subgrupo" required>
+                    <option value="">Selecione um subgrupo</option>
+                    <option value="Prato da Casa" {% if p.subgrupo == 'Prato da Casa' %}selected{% endif %}>Prato da Casa</option>
+                    <option value="Acompanhamento" {% if p.subgrupo == 'Acompanhamento' %}selected{% endif %}>Acompanhamento</option>
+                    <option value="Sobremesa" {% if p.subgrupo == 'Sobremesa' %}selected{% endif %}>Sobremesa</option>
+                    <option value="Peixada" {% if p.subgrupo == 'Peixada' %}selected{% endif %}>Peixada</option>
+                    <option value="Quentinha (M)" {% if p.subgrupo == 'Quentinha (M)' %}selected{% endif %}>Quentinha (M)</option>
+                    <option value="Quentinha (G)" {% if p.subgrupo == 'Quentinha (G)' %}selected{% endif %}>Quentinha (G)</option>
+                    <option value="Porção" {% if p.subgrupo == 'Porção' %}selected{% endif %}>Porção</option>
+                    <option value="Bebidas" {% if p.subgrupo == 'Bebidas' %}selected{% endif %}>Bebidas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status Promoção</label>
+                <select name="status_promocao" required>
+                    <option value="">Selecione um status</option>
+                    <option value="Promoção da casa" {% if p.status_promocao == 'Promoção da casa' %}selected{% endif %}>Promoção da casa</option>
+                    <option value="Black Friday" {% if p.status_promocao == 'Black Friday' %}selected{% endif %}>Black Friday</option>
+                    <option value="Sem promoção" {% if p.status_promocao == 'Sem promoção' %}selected{% endif %}>Sem promoção</option>
+                </select>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" step="0.01" name="valor" value="{{ p.valor }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Pagamento</label>
+                    <input type="text" name="form_pgmto" value="{{ p.form_pgmto }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nova Imagem</label>
+                <input type="file" name="imagem_url" accept="image/*">
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-submit" style="flex:2">💾 Salvar</button>
+                <button type="button" class="btn-cancel" onclick="fecharModal({{ p.id_prod }})">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
+{% endfor %}
+{% endif %}
 
 <script>
-    // Toggle simples para mostrar/ocultar o formulário em telas pequenas
-    
-    function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
+    /* ── Sidebar mobile ─────────────────────────────────── */
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const menuToggle = document.getElementById('menuToggle');
 
-        // Fecha o menu ao clicar fora (mobile)
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.querySelector('.menu_toggle');
-            
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
-                }
-            }
-        });
-    
-    
-    
-    (function(){
-    const btn = document.getElementById('toggleFormBtn');
-    const form = document.getElementById('productForm');
-    if(!btn || !form) return;
-    btn.addEventListener('click', ()=>{
-        const isHidden = form.style.display === 'none' || getComputedStyle(form).display === 'none';
-        form.style.display = isHidden ? 'block' : 'none';
-        btn.textContent = isHidden ? 'Fechar' : 'Adicionar produto';
+    function openSidebar() {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    }
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.contains('active') ? closeSidebar() : openSidebar();
     });
-    // Em telas pequenas, começar com formulário oculto
-    if(window.innerWidth <= 960){ form.style.display = 'none'; }
-    })();
+    overlay.addEventListener('click', closeSidebar);
 
-    // Funções para edição e exclusão de produtos
+    /* ── Toggle form ────────────────────────────────────── */
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    const productForm   = document.getElementById('productForm');
+
+    if (window.innerWidth <= 1024) productForm.classList.remove('show');
+
+    toggleFormBtn.addEventListener('click', () => {
+        const isVisible = productForm.classList.toggle('show');
+        toggleFormBtn.innerHTML = isVisible
+            ? '<span class="icon">✖️</span> Fechar Formulário'
+            : '<span class="icon">➕</span> Adicionar Produto';
+        if (window.innerWidth <= 768) closeSidebar();
+    });
+
+    /* ── Edit modal ─────────────────────────────────────── */
     function editarProduto(id) {
-    const modal = document.getElementById(`editModal${id}`);
-    if (modal) {
-        modal.style.display = 'flex';
+        document.getElementById(`editModal${id}`).style.display = 'flex';
     }
-    }
-
     function fecharModal(id) {
-    const modal = document.getElementById(`editModal${id}`);
-    if (modal) {
-        modal.style.display = 'none';
-    }
+        document.getElementById(`editModal${id}`).style.display = 'none';
     }
 
-    function atualizarProduto(event, id) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
-    
-    fetch(`/produto/${id}`, {
-        method: 'PUT',
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-        alert('Produto atualizado com sucesso!');
-        window.location.reload();
-        } else {
-        return response.text().then(text => {
-            console.error('Erro do servidor:', text);
-            alert('Erro ao atualizar produto');
+    /* Close modal clicking outside */
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', e => {
+            if (e.target === modal) modal.style.display = 'none';
         });
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao atualizar produto: ' + error.message);
     });
+
+    /* ── Update product ─────────────────────────────────── */
+    function atualizarProduto(event, id) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        fetch(`/produto/${id}`, { method: 'PUT', body: formData })
+            .then(response => {
+                if (response.ok) {
+                    alert('Produto atualizado com sucesso!');
+                    window.location.reload();
+                } else {
+                    return response.text().then(text => {
+                        console.error('Erro do servidor:', text);
+                        alert('Erro ao atualizar produto');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar produto: ' + error.message);
+            });
     }
 
-    function deletarProduto(id) {
-    fetch(`/produto/${id}`, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (response.ok) {
-        alert('Produto excluído com sucesso!');
-        window.location.reload();
-        } else {
-        alert('Erro ao excluir produto');
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao excluir produto');
-    });
-    }
-
+    /* ── Toggle visibility ──────────────────────────────── */
     function toggleVisibilidade(id, visivel) {
-    const status = visivel ? 1 : 0;
-    const mensagem = visivel ? 'Produto agora está visível' : 'Produto oculto do índice';
-    
-    fetch(`/produto/${id}/visibilidade`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ativo: status })
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log(mensagem);
-            // Atualizar o label
-            const checkbox = document.getElementById(`visible${id}`);
-            const label = checkbox.nextElementSibling;
-            if (visivel) {
-                label.textContent = '✅ Visível no índice';
+        const status = visivel ? 1 : 0;
+        const label  = document.getElementById(`visibleLabel${id}`);
+        const check  = document.getElementById(`visible${id}`);
+
+        fetch(`/produto/${id}/visibilidade`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ativo: status })
+        })
+        .then(response => {
+            if (response.ok) {
+                label.textContent = visivel ? '✅ Visível no índice' : '🚫 Oculto do índice';
             } else {
-                label.textContent = '👁️‍🗨️ Oculto do índice';
+                alert('Erro ao atualizar visibilidade');
+                check.checked = !check.checked;
             }
-        } else {
-            alert('Erro ao atualizar visibilidade do produto');
-            checkbox.checked = !checkbox.checked;
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        alert('Erro ao atualizar visibilidade: ' + error.message);
-        document.getElementById(`visible${id}`).checked = !document.getElementById(`visible${id}`).checked;
-    });
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao atualizar visibilidade: ' + error.message);
+            check.checked = !check.checked;
+        });
     }
 </script>
-
-
 
 </body>
 </html>

@@ -3,362 +3,573 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Entregadores</title>
+    <title>Cadastro de Entregador — Pedido Certo</title>
+    <meta name="robots" content="noindex,nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --sidebar-w:           260px;
+            --color-bg:            #f4f6f9;
+            --color-surface:       #ffffff;
+            --color-primary:       #e85d04;
+            --color-primary-dark:  #c84e00;
+            --color-primary-light: #fff1ea;
+            --color-text:          #1a1a2e;
+            --color-muted:         #6b7280;
+            --color-border:        #e5e7eb;
+            --radius:              10px;
+            --shadow-sm:           0 1px 3px rgba(0,0,0,.08);
+            --shadow-md:           0 4px 16px rgba(0,0,0,.10);
+            --transition:          .22s ease;
         }
 
         body {
-            background: url('https://i.postimg.cc/VNC52Dwv/cliente-2.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            font-family: 'Nunito', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
             min-height: 100vh;
-            margin: 0;
-            padding: 0;
             display: flex;
-            flex-direction: column;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar-w); height: 100vh;
+            background: #1a1a2e;
+            display: flex; flex-direction: column;
+            z-index: 100;
+            box-shadow: 3px 0 24px rgba(0,0,0,.18);
+            transition: transform var(--transition);
         }
 
-        .modal-container {
-            background: #20232b;
+        .sidebar-brand {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+
+        .sidebar-brand img { width: 140px; filter: brightness(1.1); }
+
+        .sidebar-badge {
+            font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+            color: var(--color-primary);
+            background: rgba(232,93,4,.12); border: 1px solid rgba(232,93,4,.25);
+            border-radius: 20px; padding: 3px 10px;
+        }
+
+        .sidebar-nav {
+            flex: 1; padding: 16px 14px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+
+        .nav-section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            color: rgba(255,255,255,.30); padding: 12px 8px 4px;
+        }
+
+        .nav-btn {
+            display: flex; align-items: center; gap: 12px;
+            width: 100%; padding: 10px 14px; border: none; border-radius: var(--radius);
+            background: transparent; color: rgba(255,255,255,.75);
+            font-family: inherit; font-size: 13.5px; font-weight: 600;
+            cursor: pointer; text-align: left; text-decoration: none;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,.07); color: #fff; }
+        .nav-btn.active { background: var(--color-primary-light); color: var(--color-primary); }
+        .nav-btn.active .icon { background: rgba(232,93,4,.15); }
+        .nav-btn.danger:hover { background: rgba(239,68,68,.12); color: #f87171; }
+
+        .nav-btn .icon {
+            width: 30px; height: 30px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; background: rgba(255,255,255,.06); flex-shrink: 0;
+        }
+
+        .nav-divider { height: 1px; background: rgba(255,255,255,.07); margin: 6px 0; }
+
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,.08); }
+        .sidebar-footer p { font-size: 11px; color: rgba(255,255,255,.25); text-align: center; line-height: 1.5; }
+
+        /* Mobile */
+        .menu-toggle {
+            display: none; position: fixed; top: 14px; left: 14px; z-index: 200;
+            width: 42px; height: 42px; border: none; border-radius: var(--radius);
+            background: #1a1a2e; color: #fff; font-size: 20px; cursor: pointer;
+            box-shadow: var(--shadow-md); align-items: center; justify-content: center;
+        }
+
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.45); z-index: 99; backdrop-filter: blur(2px);
+        }
+
+        /* ── Main ── */
+        .main {
+            margin-left: var(--sidebar-w); flex: 1;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--color-surface);
+            padding: 18px 28px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar h1 { font-size: 20px; font-weight: 800; color: var(--color-text); }
+        .topbar h1 span { color: var(--color-primary); }
+
+        .topbar-back {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 700; color: var(--color-muted);
+            text-decoration: none; padding: 7px 14px;
+            border: 1.5px solid var(--color-border); border-radius: 8px;
+            transition: all var(--transition);
+        }
+
+        .topbar-back:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-light); }
+
+        /* ── Content ── */
+        .content {
+            flex: 1; padding: 32px 28px;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        /* ── Form card ── */
+        .form-card {
+            background: var(--color-surface);
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 900px;
-            min-width: 320px;
-            animation: slideIn 0.3s ease-out;
+            box-shadow: var(--shadow-md);
+            width: 100%; max-width: 780px;
             overflow: hidden;
-            position: relative;
-            margin: 20px auto;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .form-card-header {
+            padding: 26px 32px 22px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex; align-items: center; gap: 14px;
         }
 
-        .modal-header {
-            background: #20232b;
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
+        .form-card-icon {
+            width: 50px; height: 50px; border-radius: 13px;
+            background: var(--color-primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0;
         }
 
-        .modal-header h1 {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .form-card-header-text h2 { font-size: 18px; font-weight: 800; color: var(--color-text); }
+        .form-card-header-text p  { font-size: 13px; color: var(--color-muted); margin-top: 2px; }
+
+        .form-card-body { padding: 28px 32px 32px; }
+
+        /* Section labels */
+        .form-section-label {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .10em; color: var(--color-muted);
+            margin-bottom: 14px; margin-top: 26px;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .modal-header p {
-            font-size: 16px;
-            opacity: 0.9;
+        .form-section-label:first-child { margin-top: 0; }
+
+        .form-section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--color-border);
         }
 
-        .modal-body {
-            padding: 40px;
-            max-height: calc(100vh - 300px);
-            overflow-y: auto;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
+        /* Form groups */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-of-type { margin-bottom: 0; }
 
         .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
+            display: block; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: var(--color-muted); margin-bottom: 5px;
         }
 
         .form-group input,
         .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            background: white;
-        }
-
-        .form-group select {
-            cursor: pointer;
+            width: 100%; padding: 10px 13px;
+            border: 1.5px solid var(--color-border); border-radius: 8px;
+            font-family: inherit; font-size: 14px; color: var(--color-text);
+            background: var(--color-bg); outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 40px;
         }
 
         .form-group input:focus,
         .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(232,93,4,.12);
+            background: #fff;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .form-group input::placeholder { color: #b0b8c4; }
+
+        /* Input with icon */
+        .input-wrap { position: relative; }
+        .input-wrap .input-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 14px; pointer-events: none; line-height: 1;
+        }
+        .input-wrap input { padding-left: 36px; }
+
+        /* Custom select */
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 13px; color: var(--color-muted); pointer-events: none;
+        }
+        .select-wrap select { padding-right: 32px; cursor: pointer; }
+
+        /* Grids */
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 80px; gap: 14px; }
+        .form-grid-cnh { display: grid; grid-template-columns: 1fr 150px 130px; gap: 14px; }
+
+        /* Tipo chips */
+        .tipo-chips { display: flex; gap: 10px; }
+
+        .tipo-chip {
+            flex: 1; padding: 9px 12px;
+            border: 1.5px solid var(--color-border); border-radius: 8px;
+            font-size: 13px; font-weight: 700; color: var(--color-muted);
+            cursor: pointer; text-align: center;
+            transition: all var(--transition); background: var(--color-bg);
+            user-select: none;
         }
 
-        .form-row-3 {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 20px;
-        }
+        .tipo-chip:hover  { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-light); }
+        .tipo-chip.active { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-light); }
 
+        /* Submit / cancel */
         .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            width: 100%; padding: 13px;
+            background: var(--color-primary); color: #fff;
+            border: none; border-radius: 10px;
+            font-family: inherit; font-size: 15px; font-weight: 800;
+            cursor: pointer; margin-top: 26px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background var(--transition), transform .12s, box-shadow var(--transition);
+            box-shadow: 0 3px 10px rgba(232,93,4,.35);
         }
 
-        .btn-submit:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        .btn-submit:hover { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(232,93,4,.45); }
+        .btn-submit:active { transform: translateY(0); }
+
+        .btn-cancel-link {
+            display: block; text-align: center; margin-top: 14px;
+            font-size: 13px; font-weight: 700; color: var(--color-muted);
+            text-decoration: none; transition: color var(--transition);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
-        }
+        .btn-cancel-link:hover { color: var(--color-primary); }
 
-        .btn-submit.secondary {
-            background: #6c757d;
-        }
-
-        .btn-submit.secondary:hover {
-            background: #5a6268;
-            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
-        }
-
-        .btn-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }   
-
-        .btn-close:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .footer {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: auto;
-            width: 100%;
-        }
-
+        /* ── Responsive ── */
         @media (max-width: 768px) {
-            .modal-container {
-                max-width: 95%;
-                margin: 10px;
-            }
-
-            .modal-body {
-                padding: 30px 20px;
-                max-height: calc(100vh - 250px);
-            }
-
-            .form-row,
-            .form-row-3 {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-header h1 {
-                font-size: 24px;
-            }
-
-            .modal-header p {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .modal-body {
-                padding: 20px 15px;
-            }
-
-            .form-group input,
-            .form-group select {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .menu-toggle { display: flex; }
+            .main { margin-left: 0; }
+            .topbar { padding: 14px 16px; padding-left: 64px; }
+            .content { padding: 20px 16px; }
+            .form-card-header { padding: 22px 20px 18px; }
+            .form-card-body  { padding: 20px 20px 24px; }
+            .form-grid-2   { grid-template-columns: 1fr; }
+            .form-grid-3   { grid-template-columns: 1fr 1fr; }
+            .form-grid-cnh { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="modal-overlay">
-        <div class="modal-container">
-        
-            <div class="modal-header">
-                <h1>🛵 Cadastro de Entregadores</h1>
-                <p>Preencha os dados abaixo</p>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <img src="https://raw.githubusercontent.com/Williamsrvs/img_catalogodigital/refs/heads/main/logo%20pedido%20certo.png" alt="Pedido Certo">
+        <span class="sidebar-badge">Cadastro de Entregador</span>
+    </div>
+
+    <div class="sidebar-nav">
+        <span class="nav-section-label">Cadastros</span>
+
+        <a href="/produto" class="nav-btn">
+            <span class="icon">➕</span> Cadastro de Produto
+        </a>
+        <a href="/cliente" class="nav-btn">
+            <span class="icon">📃</span> Cadastro de Cliente
+        </a>
+        <a href="/entregadores" class="nav-btn active">
+            <span class="icon">🛵</span> Cadastro de Entregador
+        </a>
+        <a href="/cadastrar_usuario" class="nav-btn">
+            <span class="icon">🔑</span> Cadastrar Usuários
+        </a>
+
+        <div class="nav-divider"></div>
+        <span class="nav-section-label">Gerenciamento</span>
+
+        <a href="/ger_clientes" class="nav-btn">
+            <span class="icon">👤</span> Gerenciar Clientes
+        </a>
+        <a href="/ger_pedidos" class="nav-btn">
+            <span class="icon">📦</span> Gerenciar Pedidos
+        </a>
+        <a href="/pedidos" class="nav-btn">
+            <span class="icon">🛒</span> Fazer Pedidos (PDV)
+        </a>
+
+        <div class="nav-divider"></div>
+        <span class="nav-section-label">Conta</span>
+
+        <a href="/lojista" class="nav-btn">
+            <span class="icon">🏠</span> Início
+        </a>
+        <a href="/" class="nav-btn danger">
+            <span class="icon">🚪</span> Sair
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <p>&copy; 2025 Date Analytics<br>Todos os direitos reservados</p>
+    </div>
+</nav>
+
+<!-- ── Main ── -->
+<main class="main">
+
+    <div class="topbar">
+        <h1>🛵 Cadastro de <span>Entregador</span></h1>
+        <a href="/lojista" class="topbar-back">🏠 Voltar ao Início</a>
+    </div>
+
+    <div class="content">
+        <div class="form-card">
+
+            <div class="form-card-header">
+                <div class="form-card-icon">🛵</div>
+                <div class="form-card-header-text">
+                    <h2>Novo Entregador</h2>
+                    <p>Preencha os dados para cadastrar um novo entregador no sistema</p>
+                </div>
             </div>
-            
-            <div class="modal-body">
-                <form action="/entregadores" method="POST">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="nome_entregador">Nome Completo</label>
-                            <input type="text" id="nome_entregador" name="nome_entregador" placeholder="Digite o nome completo" required>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="tipo_entregador">Tipo de Entregador</label>
-                            <select id="tipo_entregador" name="tipo_entregador" required>
-                                <option value="" disabled selected>Selecione o tipo</option>
-                                <option value="Próprio">Próprio</option>
-                                <option value="Terceirizado">Terceirizado</option>
-                            </select>
-                        </div>
-                    </div>
+            <div class="form-card-body">
+                <form action="/entregadores" method="POST" id="entregadorForm">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="habilitacao">Nº Habilitação</label>
-                            <input type="text" id="habilitacao" name="habilitacao" placeholder="Digite o número da habilitação" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipo_cnh">Tipo da CNH</label>
-                            <select id="tipo_cnh" name="tipo_cnh" required>
-                                <option value="" disabled selected>Selecione o tipo</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                                <option value="E">E</option>
-                                <option value="AB">AB</option>
-                                <option value="ACC">ACC</option>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- IDENTIFICAÇÃO -->
+                    <div class="form-section-label">Identificação</div>
 
                     <div class="form-group">
-                        <label for="validade_cnh">Validade da CNH</label>
-                        <input type="date" id="validade_cnh" name="validade_cnh" required>
+                        <label for="nome_entregador">Nome Completo</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="nome_entregador" name="nome_entregador"
+                                   placeholder="Digite o nome completo" required>
+                        </div>
                     </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="telefone">Telefone / WhatsApp</label>
+                            <div class="input-wrap">
+                                <span class="input-icon">📱</span>
+                                <input type="tel" id="telefone" name="telefone"
+                                       placeholder="(00) 00000-0000" maxlength="15" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de Entregador</label>
+                            <div class="tipo-chips" id="tipoChips">
+                                <div class="tipo-chip" data-value="Próprio"       onclick="selectTipo(this)">🏢 Próprio</div>
+                                <div class="tipo-chip" data-value="Terceirizado"  onclick="selectTipo(this)">🤝 Terceirizado</div>
+                            </div>
+                            <input type="hidden" id="tipo_entregador" name="tipo_entregador">
+                        </div>
+                    </div>
+
+                    <!-- HABILITAÇÃO -->
+                    <div class="form-section-label">Habilitação (CNH)</div>
+
+                    <div class="form-grid-cnh">
+                        <div class="form-group">
+                            <label for="habilitacao">Número da Habilitação</label>
+                            <div class="input-wrap">
+                                <span class="input-icon">📋</span>
+                                <input type="text" id="habilitacao" name="habilitacao"
+                                       placeholder="00000000000" maxlength="11" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="validade_cnh">Validade da CNH</label>
+                            <input type="date" id="validade_cnh" name="validade_cnh" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipo_cnh">Categoria</label>
+                            <div class="select-wrap">
+                                <select id="tipo_cnh" name="tipo_cnh" required>
+                                    <option value="" disabled selected>Tipo</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="AB">AB</option>
+                                    <option value="ACC">ACC</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ENDEREÇO -->
+                    <div class="form-section-label">Endereço</div>
 
                     <div class="form-group">
-                        <label for="endereco">Endereço</label>
-                        <input type="text" id="endereco" name="endereco" placeholder="Digite o endereço completo" required>
+                        <label for="endereco">Logradouro</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">🏠</span>
+                            <input type="text" id="endereco" name="endereco"
+                                   placeholder="Rua, Avenida... e número" required>
+                        </div>
                     </div>
 
-                    <div class="form-row-3">
+                    <div class="form-grid-3">
                         <div class="form-group">
                             <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro" name="bairro" placeholder="Nome do bairro" required>
+                            <input type="text" id="bairro" name="bairro"
+                                   placeholder="Nome do bairro" required>
                         </div>
-
                         <div class="form-group">
                             <label for="cidade">Cidade</label>
-                            <input type="text" id="cidade" name="cidade" placeholder="Cidade" required>
+                            <input type="text" id="cidade" name="cidade"
+                                   placeholder="Cidade" required>
                         </div>
-
                         <div class="form-group">
                             <label for="uf">UF</label>
-                            <input type="text" id="uf" name="uf" placeholder="UF" maxlength="2" required>
+                            <input type="text" id="uf" name="uf"
+                                   placeholder="UF" maxlength="2" style="text-transform:uppercase;" required>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="telefone">Telefone</label>
-                        <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
-                    </div>
+                    <!-- VEÍCULO -->
+                    <div class="form-section-label">Veículo</div>
 
-                    <div class="form-row">
+                    <div class="form-grid-2">
                         <div class="form-group">
-                            <label for="veiculo">Veículo</label>
-                            <input type="text" id="veiculo" name="veiculo" placeholder="Marca e modelo" required>
+                            <label for="veiculo">Marca e Modelo</label>
+                            <div class="input-wrap">
+                                <span class="input-icon">🏍️</span>
+                                <input type="text" id="veiculo" name="veiculo"
+                                       placeholder="Ex: Honda CG 160" required>
+                            </div>
                         </div>
-
                         <div class="form-group">
-                            <label for="ano_veiculo">Ano do Veículo</label>
-                            <input type="number" id="ano_veiculo" name="ano_veiculo" placeholder="Ano" required>
+                            <label for="ano_veiculo">Ano de Fabricação</label>
+                            <input type="number" id="ano_veiculo" name="ano_veiculo"
+                                   placeholder="Ex: 2022" min="1990" max="2030" required>
                         </div>
-                    </div>
-
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="cor">Cor do Veículo</label>
-                            <input type="text" id="cor" name="cor" placeholder="Cor do veículo" required>
+                            <input type="text" id="cor" name="cor"
+                                   placeholder="Ex: Vermelho" required>
                         </div>
-
                         <div class="form-group">
                             <label for="placa">Placa do Veículo</label>
-                            <input type="text" id="placa" name="placa" placeholder="XXX-0000" required>
+                            <div class="input-wrap">
+                                <span class="input-icon">🔖</span>
+                                <input type="text" id="placa" name="placa"
+                                       placeholder="ABC-0000" maxlength="8" required>
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Cadastrar Entregador</button>
-                    <button type="button" class="btn-submit secondary" onclick="window.location.href='/lojista'">Retornar</button>
-                    
+                    <button type="submit" class="btn-submit">
+                        ✅ Cadastrar Entregador
+                    </button>
+
+                    <a href="/lojista" class="btn-cancel-link">← Cancelar e voltar</a>
+
                 </form>
             </div>
+
         </div>
     </div>
 
-    <footer class="footer">
-        © 2025 Date Analytics. Todos os direitos reservados.
-    </footer>
+</main>
+
+<script>
+    /* ── Sidebar mobile ── */
+    const sidebar    = document.getElementById('sidebar');
+    const overlay    = document.getElementById('sidebarOverlay');
+    const menuToggle = document.getElementById('menuToggle');
+
+    menuToggle.addEventListener('click', () =>
+        sidebar.classList.contains('active') ? closeSidebar() : openSidebar());
+    overlay.addEventListener('click', closeSidebar);
+    function openSidebar()  { sidebar.classList.add('active');    overlay.classList.add('active'); }
+    function closeSidebar() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+
+    /* ── Tipo chips ── */
+    function selectTipo(el) {
+        document.querySelectorAll('.tipo-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('tipo_entregador').value = el.dataset.value;
+    }
+
+    /* ── Validação tipo ao submit ── */
+    document.getElementById('entregadorForm').addEventListener('submit', function(e) {
+        if (!document.getElementById('tipo_entregador').value) {
+            e.preventDefault();
+            alert('⚠️ Selecione o tipo de entregador (Próprio ou Terceirizado).');
+            document.getElementById('tipoChips').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
+    /* ── Máscara telefone ── */
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length <= 10) v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        else                v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+        e.target.value = v;
+    });
+
+    /* ── Máscara placa (ABC-0D00 / ABC-0000) ── */
+    document.getElementById('placa').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        if (v.length > 3) v = v.slice(0, 3) + '-' + v.slice(3, 7);
+        e.target.value = v;
+    });
+
+    /* ── UF uppercase ── */
+    document.getElementById('uf').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+    });
+
+    /* ── Habilitação — somente números ── */
+    document.getElementById('habilitacao').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    /* ── ESC volta ── */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') window.location.href = '/lojista';
+    });
+</script>
+
 </body>
 </html>
